@@ -5,6 +5,10 @@
   --foreground: #171717;
 } */
 
+.borderColor {
+  border-color: #dfdfdf;
+}
+
 /* @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
