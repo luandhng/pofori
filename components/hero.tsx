@@ -1,10 +1,10 @@
 const Hero = () => {
   return (
-    <div className="max-w-5xl mx-auto py-20 flex flex-col gap-10 font-medium">
+    <div className="pt-10 flex flex-col gap-10 font-medium">
       <div className="flex flex-col gap-5 tracking-tight ">
-        <h1 className="text-2xl">Build your portfolio in minutes.</h1>
+        <h1 className="text-2xl">Portfolio for artists.</h1>
         <h1 className="text-2xl leading-0">
-          Pofori is standard way to build your portfolio.
+          Pofori is best way to build your portfolio.
         </h1>
       </div>
 

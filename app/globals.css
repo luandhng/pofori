@@ -5,8 +5,14 @@
   --foreground: #171717;
 } */
 
+html,
+body,
+:root {
+  background: #fafafa;
+}
+
 .borderColor {
-  border-color: #dfdfdf;
+  border-color: #fafafa;
 }
 
 /* @theme inline {
