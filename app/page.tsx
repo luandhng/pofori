@@ -1,8 +1,7 @@
 export default function Home() {
   return (
-    <div className="text-green-800">
-      <h1>love is</h1>
-      <p>I believe that</p>
+    <div>
+      <h1>Love is here cool</h1>
     </div>
   );
 }
