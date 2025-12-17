@@ -10,12 +10,13 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     // 1. Get Data
-    const { customer_name, appointment_time } = body.args || body;
+    const { first_name, last_name, appointment_time, technician, services } =
+      body.args || body;
 
     // const customer_phone = body.call?.from_number;
     // const business_phone = body.call?.to_number;
 
-    const customer_phone = "6578909982";
+    const customer_phone = "6998909982";
     const business_phone = "1111111111";
 
     if (!business_phone) {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const { data: businesses, error: businessesError } = await supabase
       .from("businesses")
-      .select("id, name")
+      .select("id, name, opening_time, closing_time")
       .eq("phone_number", business_phone)
       .single();
 
@@ -41,11 +42,11 @@ export async function POST(req: NextRequest) {
     // 2. CHECK: Is this a new customer?
     const { data: existingCustomer } = await supabase
       .from("customers")
-      .select("customer_id, first_name")
+      .select("id, first_name")
       .eq("phone_number", customer_phone)
       .single();
 
-    let customerId = existingCustomer?.customer_id;
+    let customerId = existingCustomer?.id;
 
     // 3. IF NEW: Add to customers table
     if (!customerId) {
@@ -54,7 +55,8 @@ export async function POST(req: NextRequest) {
         .from("customers")
         .insert([
           {
-            first_name: customer_name,
+            first_name,
+            last_name,
             phone_number: customer_phone,
             business_id: businesses?.id,
           },
@@ -74,6 +76,8 @@ export async function POST(req: NextRequest) {
         time: appointment_time,
         customer_id: customerId,
         business_id: businesses?.id,
+        technician,
+        services,
         is_booked: true,
       },
     ]);
