@@ -34,16 +34,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ found: false, message: "Salon not found" });
     }
 
-    // 3. Identify the Customer (Global Check)
     const { data: customer } = await supabase
       .from("customers")
-      .select("first_name")
+      .select("id, first_name")
       .eq("phone_number", customerPhone)
       .eq("business_id", business.id)
       .single();
 
+    const { data: service } = await supabase
+      .from("services")
+      .select("service, duration, price")
+      .eq("business_id", business.id);
+
+    const { data: technician } = await supabase
+      .from("technicians")
+      .select("id, first_name, last_name, skills, available_date")
+      .eq("business_id", business.id);
+
+    const { data: appointment } = await supabase
+      .from("appointments")
+      .select("id, time, technician, services")
+      .eq("customer_id", customer?.id)
+      .eq("business_id", business.id);
+
+    const techRoster =
+      technician && technician.length > 0
+        ? technician
+            .map(
+              (tech) => `
+        - **Name:** ${tech.first_name} ${tech.last_name || ""}
+        - **Skills:** ${(tech.skills || []).join(", ")}
+        - **Schedule:** ${(tech.available_date || []).join(", ")}
+      `
+            )
+            .join("\n") // Add a new line between each person
+        : "No specific technicians found.";
+
+    const menuList =
+      service && service.length > 0
+        ? service
+            .map((s) => `- ${s.service}: $${s.price} (${s.duration} mins)`)
+            .join("\n")
+        : "No services listed.";
+
     if (!customer) {
-      // Logic: If we don't know their name at all, they are definitely new.
       return NextResponse.json({
         found: false,
         salon_name: business.name,
@@ -51,34 +85,32 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. THE CRITICAL CHECK: Has he visited THIS salon before?
-    // // We count past appointments for this phone + this salon_id
-    // const { count } = await supabase
-    //   .from("appointments")
-    //   .select("*", { count: "exact", head: true }) // 'head' means don't fetch data, just count
-    //   .eq("phone", customerPhone)
-    //   .eq("salon_id", business.id); // <--- The Salon Filter
+    return NextResponse.json({
+      found: true,
+      customer_name: customer.first_name,
+      appointment,
+      // Pass raw data if needed for other tools, but usually not needed for the prompt
+      technician: technician,
+      service: service,
+      business,
+      salon_name: business.name,
+      is_regular: true,
 
-    const isStoreRegular = customer;
+      system_instruction: `
+      ### SALON MENU
+      ${menuList}
 
-    // 5. Return context to AI
-    if (isStoreRegular) {
-      return NextResponse.json({
-        found: true,
-        customer_name: customer.first_name,
-        salon_name: business.name,
-        is_regular: true,
-        system_instruction: `You are answering for ${business.name}. This is ${customer.first_name}, a regular customer. Say 'Welcome back to ${business.name}, ${customer.first_name}!, what can i help you today?'`,
-      });
-    } else {
-      // Logic: We know his name (maybe from another store), but he is new to THIS store.
-      return NextResponse.json({
-        found: true,
-        salon_name: business.name,
-        is_regular: false,
-        system_instruction: `You are answering for a new customer. Say 'Hi, welcome to ${business.name}!, what can i help you today?'`,
-      });
-    }
+      ### TECHNICIAN ROSTER (STRICT RULES)
+      ${techRoster}
+      
+      ### INSTRUCTIONS
+      - You are answering for ${business.name}.
+      - This is ${customer.first_name}, a regular customer.
+      - **Review the Roster above:** If the user asks for a service, ONLY offer technicians who list that skill.
+      - **Review the Schedule above:** Only offer times that match the technician's available days.
+      
+      Start by saying: 'Welcome back to ${business.name}, ${customer.first_name}! What can I help you today?'`,
+    });
   } catch (error: any) {
     return NextResponse.json(
       { found: false, error: error.message },
