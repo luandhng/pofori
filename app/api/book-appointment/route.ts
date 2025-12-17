@@ -1,61 +1,87 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-// 1. Define the shape of the data Retell sends
-// Retell nests your parameters inside an "args" object.
-interface RetellRequestBody {
-  args: {
-    customer_name: string;
-    appointment_time: string; // ISO string format
-  };
-}
-
-// Initialize Supabase Client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Use Service Role to bypass RLS for server-side writes
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export async function POST(req: NextRequest) {
   try {
-    // 2. Parse the body with the interface we defined
-    const body = (await req.json()) as RetellRequestBody;
-    const { customer_name, appointment_time } = body.args;
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    // Validation (Optional but recommended)
-    if (!customer_name || !appointment_time) {
+    const body = await req.json();
+    // 1. Get Data
+    const { customer_name, appointment_time } = body.args || body;
+
+    // const customer_phone = body.call?.from_number;
+    // const business_phone = body.call?.to_number;
+
+    const customer_phone = "6578909982";
+    const business_phone = "1111111111";
+
+    if (!business_phone) {
       return NextResponse.json(
-        { message: "Missing required parameters" },
+        { message: "Unknown Business Number" },
         { status: 400 }
       );
     }
 
-    console.log(`Booking for: ${customer_name} at ${appointment_time}`);
+    const { data: businesses, error: businessesError } = await supabase
+      .from("businesses")
+      .select("id, name")
+      .eq("phone_number", business_phone)
+      .single();
 
-    // 3. Insert into Supabase
-    // Note: We use the table name string 'appointments' as shown in your screenshot
-    const { error } = await supabase.from("appointments").insert([
+    if (!customer_phone) {
+      return NextResponse.json(
+        { message: "No phone number found" },
+        { status: 400 }
+      );
+    }
+
+    // 2. CHECK: Is this a new customer?
+    const { data: existingCustomer } = await supabase
+      .from("customers")
+      .select("customer_id, first_name")
+      .eq("phone_number", customer_phone)
+      .single();
+
+    let customerId = existingCustomer?.customer_id;
+
+    // 3. IF NEW: Add to customers table
+    if (!customerId) {
+      console.log("🆕 New Customer detected! Creating profile...");
+      const { data: newCustomer, error: createError } = await supabase
+        .from("customers")
+        .insert([
+          {
+            first_name: customer_name,
+            phone_number: customer_phone,
+            business_id: businesses?.id,
+          },
+        ])
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      customerId = newCustomer.id;
+    } else {
+      console.log("✅ Regular Customer found.");
+    }
+
+    // 4. BOOK: Create appointment (linked to customer_id if you have that column, or just name/phone)
+    const { error: bookingError } = await supabase.from("appointments").insert([
       {
-        name: customer_name,
         time: appointment_time,
+        customer_id: customerId,
+        business_id: businesses?.id,
         is_booked: true,
       },
     ]);
 
-    if (error) {
-      console.error("Supabase Error:", error);
-      throw error;
-    }
+    if (bookingError) throw bookingError;
 
-    // 4. Return success to Retell
-    return NextResponse.json({
-      message: "Appointment booked successfully",
-      status: "success",
-    });
-  } catch (error) {
-    console.error("API Error:", error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Success" });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
