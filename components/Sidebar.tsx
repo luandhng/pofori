@@ -22,7 +22,6 @@ export function Sidebar() {
         <p className="px-3 text-xs text-neutral-500 font-medium">Main Menu</p>
         <div className="w-full flex flex-col">
           <Button
-            active
             icon={<CalendarBlankIcon weight="fill" size={15} />}
             text="Appointments"
           />

@@ -1,17 +1,26 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface Props {
   text: string;
   icon: any;
-  active?: boolean;
 }
 
-export const Button = ({ text, icon, active }: Props) => {
+export const Button = ({ text, icon }: Props) => {
+  const pathname = usePathname();
+  const lastSegment = pathname.split("/").filter(Boolean).pop();
+  const lowerCaseText = text.toLowerCase();
+  const linkHref = `${lowerCaseText.replace(" ", "")}`;
+
+  const isActive = lastSegment === linkHref;
+
   return (
     <Link
-      href={text.toLowerCase().replace(" ", "")}
+      href={linkHref}
       className={` ${
-        active
+        isActive
           ? "bg-white border-neutral-200"
           : "hover:bg-white text-neutral-500 hover:text-black hover:border-neutral-200 border-transparent"
       } flex items-center gap-2 border cursor-pointer w-full hover:border-neutral-200  py-1.5 px-2.5 text-left rounded-md`}
