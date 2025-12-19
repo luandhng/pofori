@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     // 1. Get Data
-    const { first_name, last_name, appointment_time, technician, services } =
+    const { first_name, last_name, appointment_time, technician_id, services } =
       body.args || body;
 
     // const customer_phone = body.call?.from_number;
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
         time: appointment_time,
         customer_id: customerId,
         business_id: businesses?.id,
-        technician,
+        technician: technician_id,
         services,
         is_booked: true,
       },

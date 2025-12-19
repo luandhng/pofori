@@ -30,22 +30,18 @@ export async function POST(req: NextRequest) {
       .eq("phone_number", customer_phone)
       .single();
 
-    // const { data: appointment } = await supabase
-    //   .from("appointments")
-    //   .select("id")
-    //   .eq("customer_id", existingCustomer?.id)
-    //   .eq("business_id", businesses?.id);
-
-    const { error } = await supabase
+    const { data: appointments } = await supabase
       .from("appointments")
       .delete()
       .eq("business_id", businesses?.id)
       .eq("customer_id", existingCustomer?.id)
       .eq("time", appointment_time);
 
-    console.log(error);
-
-    return NextResponse.json({ message: "Success" });
+    return NextResponse.json({
+      success: true,
+      // The AI reads this 'message' field to know what to say
+      message: `Appointment cancelled successfully for ${appointments}. Ask if they would like to reschedule for a different time.`,
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
