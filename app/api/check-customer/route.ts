@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // 2. Identify Business
     const { data: business } = await supabase
       .from("businesses")
-      .select("id, name")
+      .select("id, name, opening_time, closing_time, date, time_zone")
       .eq("phone_number", businessPhone)
       .single();
 
@@ -55,6 +55,12 @@ export async function POST(req: NextRequest) {
     const appointments = appointmentsRes.data || [];
 
     // 4. Format Data for AI
+    const busin = `- Name: ${business.name} \n Opening Hours: From ${
+      business.opening_time
+    } to ${business.closing_time} on ${business.date.join(",")} \n Time-zone: ${
+      business.time_zone
+    }`;
+
     const menu = services.length
       ? services
           .map((s) => `- ${s.service}: $${s.price} (${s.duration}m)`)
@@ -91,13 +97,16 @@ export async function POST(req: NextRequest) {
       customer_name: customer?.first_name,
       salon_name: business.name,
       system_instruction: `
+      ### SALON INFORMATION
+      ${busin}
+
       ### SALON MENU
       ${menu}
 
       ### TECHNICIAN ROSTER (STRICT)
       ${roster}
 
-      ### APPOINTMENTS
+      ### APPOINTMENTS (STRICT)
       ${calendar}
       
       ### INSTRUCTIONS
@@ -111,6 +120,7 @@ export async function POST(req: NextRequest) {
       - Only offer technicians who list the requested skill.
       - Only offer times that match the technician's available days (Check the available days again really carefully, don't just book when the customer says tomorrow).
       - If the customer says anyone or any technician, find the one that matches the requested skills and available days.
+      - Before booking an appointment, check again to make sure it is not conflict with other bookings of the same technician within the duration of the services.
 
       Start by saying: "${greeting} What can I help you today?"`,
     });
