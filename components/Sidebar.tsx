@@ -1,6 +1,5 @@
 import { Button } from "@/components/Button";
 import {
-  HairDryerIcon,
   CalendarBlankIcon,
   MoneyIcon,
   UsersIcon,
@@ -13,7 +12,7 @@ import {
 
 export function Sidebar() {
   return (
-    <div className="w-52 flex flex-col pr-2 gap-6">
+    <div className="w-56 flex flex-col pr-2 gap-6">
       <div className="border flex items-center gap-2 p-2 rounded-md border-neutral-200 bg-white">
         <div className="bg-black w-4 h-4 rounded-full"></div>
         <p>Super Salon</p>

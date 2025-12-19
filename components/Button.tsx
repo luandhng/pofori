@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface Props {
   text: string;
   icon: any;
@@ -6,7 +8,8 @@ interface Props {
 
 export const Button = ({ text, icon, active }: Props) => {
   return (
-    <button
+    <Link
+      href={text.toLowerCase()}
       className={` ${
         active
           ? "bg-white border-neutral-200"
@@ -14,6 +17,6 @@ export const Button = ({ text, icon, active }: Props) => {
       } flex items-center gap-2 border cursor-pointer w-full hover:border-neutral-200  py-1.5 px-2.5 text-left rounded-md`}
     >
       {icon} <p>{text}</p>
-    </button>
+    </Link>
   );
 };
