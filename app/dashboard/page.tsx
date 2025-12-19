@@ -13,8 +13,8 @@ import {
 
 const Dashboard = () => {
   return (
-    <div className="flex h-screen p-2 bg-neutral-100">
-      <div className="w-56 flex flex-col pr-2 gap-6">
+    <div className="flex h-screen p-2 bg-[#f5f5f5]">
+      <div className="w-52 flex flex-col pr-2 gap-6">
         <div className="border flex items-center gap-2 p-2 rounded-md border-neutral-200 bg-white">
           <div className="bg-black w-4 h-4 rounded-full"></div>
           <p>Super Salon</p>
