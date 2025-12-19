@@ -1,11 +1,18 @@
 interface Props {
   text: string;
   icon: any;
+  active?: boolean;
 }
 
-export const Button = ({ text, icon }: Props) => {
+export const Button = ({ text, icon, active }: Props) => {
   return (
-    <button className="hover:bg-white flex items-center gap-2 border cursor-pointer hover:border-neutral-200 border-transparent py-2 px-3 text-left rounded-md">
+    <button
+      className={` ${
+        active
+          ? "bg-white border-neutral-200"
+          : "hover:bg-white text-neutral-500 hover:text-black hover:border-neutral-200 border-transparent"
+      } flex items-center gap-2 border cursor-pointer w-full hover:border-neutral-200  py-1.5 px-2.5 text-left rounded-md`}
+    >
       {icon} <p>{text}</p>
     </button>
   );
