@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const customer_phone = "6998909982";
+    const customer_phone = "9991111000";
     const business_phone = "1111111111";
 
     const { appointment_time } = body.args || {};

@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // 1. Get IDs (Switch back to body.call variables when ready for production)
-    const customerPhone = body.call?.from_number || "6998909982";
+
+    const customerPhone = body.call?.from_number || "9991111000";
     const businessPhone = body.call?.to_number || "1111111111";
 
     if (!customerPhone || !businessPhone)

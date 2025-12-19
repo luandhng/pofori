@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     } = body.args || body;
 
     // Hardcoded for testing (Swap these comments for production)
-    const customer_phone = "6998909982";
+    const customer_phone = "9991111000";
     const business_phone = "1111111111";
     // const customer_phone = body.call?.from_number;
     // const business_phone = body.call?.to_number;

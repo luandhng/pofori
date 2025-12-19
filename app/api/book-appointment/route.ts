@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       body.args || body;
 
     // Use hardcoded numbers for testing, or swap to body.call?.from_number for production
-    const customer_phone = "6998909982";
+    const customer_phone = "9991111000";
     const business_phone = "1111111111";
 
     if (!business_phone || !customer_phone) {
