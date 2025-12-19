@@ -1,75 +1,13 @@
-import { Button } from "@/components/Button";
-import {
-  HairDryerIcon,
-  CalendarBlankIcon,
-  MoneyIcon,
-  UsersIcon,
-  UserGearIcon,
-  WalletIcon,
-  ScissorsIcon,
-  CrownSimpleIcon,
-  HeadsetIcon,
-} from "@phosphor-icons/react/ssr";
+import { Content } from "@/components/Content";
+import { Sidebar } from "@/components/Sidebar";
 
 const Dashboard = () => {
   return (
     <div className="flex h-screen p-2 bg-[#f5f5f5]">
-      <div className="w-52 flex flex-col pr-2 gap-6">
-        <div className="border flex items-center gap-2 p-2 rounded-md border-neutral-200 bg-white">
-          <div className="bg-black w-4 h-4 rounded-full"></div>
-          <p>Super Salon</p>
-        </div>
-
-        <div className="flex flex-col gap-1.5 w-full">
-          <p className="px-3 text-xs text-neutral-500 font-medium">Main Menu</p>
-          <div className="w-full flex flex-col">
-            <Button
-              active
-              icon={<CalendarBlankIcon weight="fill" size={15} />}
-              text="Appointments"
-            />
-            <Button
-              icon={<MoneyIcon weight="fill" size={15} />}
-              text="Transactions"
-            />
-            <Button
-              icon={<UserGearIcon weight="fill" size={15} />}
-              text="Technicians"
-            />
-            <Button
-              icon={<WalletIcon weight="fill" size={15} />}
-              text="Payroll"
-            />
-            <Button
-              icon={<ScissorsIcon weight="fill" size={15} />}
-              text="Services"
-            />
-            <Button
-              icon={<HeadsetIcon weight="fill" size={15} />}
-              text="AI Receptionist"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5 w-full">
-          <p className="px-3 text-xs text-neutral-500 font-medium">Customers</p>
-          <div className="w-full flex flex-col">
-            <Button
-              icon={<UsersIcon weight="fill" size={15} />}
-              text="Customer List"
-            />
-            <Button
-              icon={<CrownSimpleIcon weight="fill" size={15} />}
-              text="Loyalty Program"
-            />
-          </div>
-        </div>
-      </div>
+      <Sidebar />
 
       <div className="flex-1">
-        <div className="p-2 border border-neutral-200 h-full w-full bg-white rounded-md">
-          fasfs
-        </div>
+        <Content />
       </div>
     </div>
   );
