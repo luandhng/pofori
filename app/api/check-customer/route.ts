@@ -81,8 +81,6 @@ export async function POST(req: NextRequest) {
         )
       : "No appointments";
 
-    console.log(calendar);
-
     // 5. Build Response
     const greeting = customer
       ? `Welcome back to ${business.name}, ${customer.first_name}!`
