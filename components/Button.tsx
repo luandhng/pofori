@@ -9,7 +9,7 @@ interface Props {
 export const Button = ({ text, icon, active }: Props) => {
   return (
     <Link
-      href={text.toLowerCase()}
+      href={text.toLowerCase().replace(" ", "")}
       className={` ${
         active
           ? "bg-white border-neutral-200"
