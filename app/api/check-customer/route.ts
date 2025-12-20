@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
       - Only offer times that match the technician's available days (Check the available days again really carefully, don't just book when the customer says tomorrow).
       - If the customer says anyone or any technician, find the one that matches the requested skills and available days.
       - Before booking an appointment, check again to make sure it is not conflict with other bookings of the same technician within the duration of the services.
+      - Use the salon time zone when the customers book the appointment
 
       Start by saying: "${greeting} What can I help you today?"`,
     });

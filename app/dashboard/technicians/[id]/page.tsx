@@ -3,7 +3,6 @@ import { InfoBox } from "@/components/InfoBox";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
