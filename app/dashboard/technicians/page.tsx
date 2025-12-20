@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useBusiness } from "@/hooks/use-business";
 import { useTechnicians } from "@/hooks/use-technicians";
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
 
 const Technicians = () => {
   const { data: business } = useBusiness();
@@ -12,11 +13,14 @@ const Technicians = () => {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <div className="flex gap-6">
-          <Input type="search" />
+        <div className="flex gap-6 w-56">
+          <Input placeholder="Search technician" type="search" />
         </div>
 
-        <Button>New Technician</Button>
+        <Button className="bg-purple-300 text-black">
+          <PlusIcon />
+          New Technician
+        </Button>
       </div>
 
       <div className="border border-neutral-200 overflow-hidden rounded-xl">

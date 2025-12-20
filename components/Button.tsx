@@ -21,7 +21,7 @@ export const Button = ({ text, icon }: Props) => {
       href={linkHref}
       className={` ${
         isActive
-          ? "bg-lime-200"
+          ? "bg-neutral-200"
           : "duration-200 text-neutral-500 hover:text-black"
       } flex items-center gap-2.5 cursor-pointer w-full py-1.5 px-2 text-left rounded-md`}
     >

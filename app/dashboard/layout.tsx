@@ -5,6 +5,7 @@
 
 import { Sidebar } from "@/components/Sidebar";
 import Providers from "../providers";
+import { ContentTitle } from "@/components/ContentTitle";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +18,7 @@ export default function DashboardLayout({
         <Sidebar />
 
         <div className="border border-neutral-200 p-8 flex flex-col gap-8 h-full w-full bg-white rounded-2xl">
-          <div className="text-2xl font-medium">Technicians</div>
+          <ContentTitle />
 
           <div className="">{children}</div>
         </div>
