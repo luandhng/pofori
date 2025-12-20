@@ -18,7 +18,7 @@ export const Button = ({ text, icon }: Props) => {
 
   return (
     <Link
-      href={linkHref}
+      href={`/dashboard/${linkHref}`}
       className={` ${
         isActive
           ? "bg-neutral-200"

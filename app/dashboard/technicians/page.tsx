@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useBusiness } from "@/hooks/use-business";
 import { useTechnicians } from "@/hooks/use-technicians";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 
 const Technicians = () => {
   const { data: business } = useBusiness();
@@ -17,7 +18,7 @@ const Technicians = () => {
           <Input placeholder="Search technician" type="search" />
         </div>
 
-        <Button className="bg-purple-300 text-black">
+        <Button className="">
           <PlusIcon />
           New Technician
         </Button>
@@ -25,7 +26,8 @@ const Technicians = () => {
 
       <div className="border border-neutral-200 overflow-hidden rounded-xl">
         {data?.map((item, index) => (
-          <div
+          <Link
+            href={`technicians/${item.id}`}
             key={index}
             className="border-b flex items-center justify-between hover:bg-neutral-100 cursor-pointer border-neutral-200 last:border-none px-6 py-4"
           >
@@ -40,7 +42,7 @@ const Technicians = () => {
             </div>
 
             <div>60% Commission</div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
