@@ -4,6 +4,7 @@
 // };
 
 import { Sidebar } from "@/components/Sidebar";
+import Providers from "../providers";
 
 export default function DashboardLayout({
   children,
@@ -11,12 +12,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen p-2 bg-[#f5f5f5]">
-      <Sidebar />
+    <Providers>
+      <div className="flex h-screen p-2 bg-[#fafafa]">
+        <Sidebar />
 
-      <div className="p-2 border border-neutral-200 h-full w-full bg-white rounded-md">
-        {children}
+        <div className="border border-neutral-200 h-full w-full bg-white rounded-md">
+          <div className="border-b border-neutral-200 p-2">Schedule</div>
+
+          <div className="p-2">{children}</div>
+        </div>
       </div>
-    </div>
+    </Providers>
   );
 }
