@@ -6,22 +6,28 @@ import {
   UserGearIcon,
   WalletIcon,
   ScissorsIcon,
+  ChatIcon,
   CrownSimpleIcon,
+  NotificationIcon,
   HeadsetIcon,
 } from "@phosphor-icons/react/ssr";
 
 export function Sidebar() {
   return (
-    <div className="w-56 flex flex-col justify-between pr-2">
+    <div className="w-64 flex flex-col justify-between p-2 pr-4">
       <div className="flex flex-col gap-5">
-        <div className="border flex items-center gap-1.5 p-2 rounded-md border-neutral-200 bg-white">
-          <div className="bg-black w-3.5 h-3.5 rounded-sm"></div>
-          <p>Super Salon</p>
+        <div className="flex items-center justify-between p-2 rounded-md">
+          <div className="flex items-center gap-1.5">
+            <div className="bg-black w-3.5 h-3.5 rounded-sm"></div>
+            <p>Super Salon</p>
+          </div>
+
+          <NotificationIcon size={15} weight="fill" />
         </div>
 
         <div className="flex flex-col gap-2 w-full">
           <p className="px-2 text-xs text-neutral-500 font-medium">Main Menu</p>
-          <div className="w-full flex flex-col gap-0.5">
+          <div className="w-full flex flex-col gap-1">
             <Button
               icon={<CalendarBlankIcon weight="fill" size={15} />}
               text="Schedule"
@@ -51,7 +57,7 @@ export function Sidebar() {
 
         <div className="flex flex-col gap-2 w-full">
           <p className="px-2 text-xs text-neutral-500 font-medium">Customers</p>
-          <div className="w-full flex flex-col gap-0.5">
+          <div className="w-full flex flex-col gap-1">
             <Button
               icon={<UsersIcon weight="fill" size={15} />}
               text="Customer List"

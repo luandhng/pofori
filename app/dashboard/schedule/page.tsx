@@ -10,7 +10,6 @@ const Schedule = () => {
 
   return (
     <div>
-      <h2>Tuesday, December 2, 2025</h2>
       {isLoading ? (
         "Loading.."
       ) : (

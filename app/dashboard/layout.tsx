@@ -16,10 +16,10 @@ export default function DashboardLayout({
       <div className="flex h-screen p-2 bg-[#fafafa]">
         <Sidebar />
 
-        <div className="border border-neutral-200 h-full w-full bg-white rounded-md">
-          <div className="border-b border-neutral-200 p-2">Schedule</div>
+        <div className="border border-neutral-200 p-8 flex flex-col gap-8 h-full w-full bg-white rounded-2xl">
+          <div className="text-2xl font-medium">Technicians</div>
 
-          <div className="p-2">{children}</div>
+          <div className="">{children}</div>
         </div>
       </div>
     </Providers>
