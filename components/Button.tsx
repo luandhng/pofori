@@ -10,15 +10,16 @@ interface Props {
 
 export const Button = ({ text, icon }: Props) => {
   const pathname = usePathname();
-  const lastSegment = pathname.split("/").filter(Boolean).pop();
-  const lowerCaseText = text.toLowerCase();
-  const linkHref = `${lowerCaseText.replace(" ", "")}`;
 
-  const isActive = lastSegment === linkHref;
+  const lowerCaseText = text.toLowerCase().replace(" ", "");
+  const targetPath = `/dashboard/${lowerCaseText}`;
+
+  const isActive =
+    pathname === targetPath || pathname.startsWith(`${targetPath}/`);
 
   return (
     <Link
-      href={`/dashboard/${linkHref}`}
+      href={targetPath}
       className={` ${
         isActive
           ? "bg-neutral-200"
