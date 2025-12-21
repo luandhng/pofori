@@ -33,3 +33,25 @@ export const fetchTechnicians = async (businessId: string) => {
 
   return data;
 };
+
+export const fetchCustomers = async (businessId: string) => {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("customers")
+    .select()
+    .eq("business_id", businessId);
+
+  return data;
+};
+
+export const fetchServices = async (businessId: string) => {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("services")
+    .select()
+    .eq("business_id", businessId);
+
+  return data;
+};

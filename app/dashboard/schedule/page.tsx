@@ -4,9 +4,7 @@ import { useAppointments } from "@/hooks/use-appointments";
 import { useBusiness } from "@/hooks/use-business";
 
 const Schedule = () => {
-  const { data: business } = useBusiness();
-
-  const { data, isLoading } = useAppointments(business?.id);
+  const { data, isLoading } = useAppointments();
 
   return (
     <div>

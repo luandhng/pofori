@@ -2,14 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useBusiness } from "@/hooks/use-business";
 import { useTechnicians } from "@/hooks/use-technicians";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 const Technicians = () => {
-  const { data: business } = useBusiness();
-  const { data } = useTechnicians(business?.id);
+  const { data } = useTechnicians();
 
   return (
     <div className="flex flex-col gap-8">

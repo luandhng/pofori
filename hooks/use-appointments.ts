@@ -4,10 +4,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAppointment } from "@/actions/server/fetch-data";
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useBusiness } from "./use-business";
 
-export function useAppointments(businessId: string) {
+export function useAppointments() {
   const queryClient = useQueryClient();
   const supabase = createClient();
+
+  const { data: business } = useBusiness();
+  const businessId = business?.id;
 
   const query = useQuery({
     queryKey: ["appointments"],

@@ -1,4 +1,8 @@
+"use client";
+
 import { InfoBox } from "@/components/InfoBox";
+
+import { toZonedTime, format } from "date-fns-tz";
 
 import {
   Table,
@@ -8,14 +12,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAppointments } from "@/hooks/use-appointments";
+import { useCustomers } from "@/hooks/use-customers";
+import { useParams } from "next/navigation";
 
 const Technician = () => {
+  const { data: appointments } = useAppointments();
+  const { data: customers } = useCustomers();
+
+  const param = useParams();
+
+  const getAppointmentCount = () => {
+    if (!appointments) return 0;
+    return appointments.filter((appt) => appt.technician_id === param.id)
+      .length;
+  };
+
+  const getCustomerName = (customerId: string) => {
+    const found = customers?.find((c) => c.id === customerId);
+
+    return found
+      ? `${found.first_name} ${found.last_name || ""}`
+      : "Unknown Customer";
+  };
+
+  const formatBusinessTime = (isoString: string) => {
+    const timeZone = "est";
+    const zonedDate = toZonedTime(isoString, timeZone);
+
+    return format(zonedDate, "MMM d yy, h:mm a", { timeZone });
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <div className="grid grid-cols-3 gap-8">
-        <InfoBox text="Total Appointments" />
-        <InfoBox text="Completed" />
-        <InfoBox text="Total Revenue" />
+        <InfoBox text="Total Appointments" number={getAppointmentCount()} />
+        <InfoBox text="Completed" number={0} />
+        <InfoBox money text="Total Revenue" number={0} />
       </div>
 
       <div className="border rounded-xl overflow-hidden">
@@ -25,42 +58,34 @@ const Technician = () => {
               <TableHead className="px-6 py-4">Customer</TableHead>
               <TableHead>Services</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead className="px-6 py-4">Earn</TableHead>
+              <TableHead>Earn</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="">
-              <TableCell className="font-medium p-6">Steven King</TableCell>
-              <TableCell>Hair Cut, Nail Art, Manicure</TableCell>
-              <TableCell>05/21/25</TableCell>
-              <TableCell>$50.00</TableCell>
-              <TableCell>Done</TableCell>
-            </TableRow>
-
-            <TableRow className="bg-red-50">
-              <TableCell className="font-medium p-6">INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>Cancelled</TableCell>
-            </TableRow>
-
-            <TableRow className="">
-              <TableCell className="font-medium p-6">INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>Active</TableCell>
-            </TableRow>
-
-            <TableRow className="">
-              <TableCell className="font-medium p-6">INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell>$250.00</TableCell>
-              <TableCell>Active</TableCell>
-            </TableRow>
+            {appointments?.map(
+              (item) =>
+                item.technician_id === param.id && (
+                  <TableRow key={item.id} className="">
+                    <TableCell className="font-medium p-6">
+                      {getCustomerName(item.customer_id)}
+                    </TableCell>
+                    <TableCell className="flex gap-2 py-6">
+                      {item.services.map((item: string, index: number) => (
+                        <div
+                          className="border lowercase border-neutral-200 rounded-full py-1 px-2 w-fit"
+                          key={index}
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </TableCell>
+                    <TableCell>{formatBusinessTime(item.time)}</TableCell>
+                    <TableCell>$0.00</TableCell>
+                    <TableCell>{item.status}</TableCell>
+                  </TableRow>
+                )
+            )}
           </TableBody>
         </Table>
       </div>

@@ -1,14 +1,14 @@
-import { fetchTechnicians } from "@/actions/server/fetch-data";
+import { fetchServices } from "@/actions/server/fetch-data";
 import { useQuery } from "@tanstack/react-query";
 import { useBusiness } from "./use-business";
 
-export function useTechnicians() {
+export function useServices() {
   const { data: business } = useBusiness();
   const businessId = business?.id;
 
   return useQuery({
-    queryKey: ["technicians"],
-    queryFn: async () => fetchTechnicians(businessId),
+    queryKey: ["services"],
+    queryFn: async () => fetchServices(businessId),
     staleTime: 1000 * 60 * 5,
     enabled: !!businessId,
   });
