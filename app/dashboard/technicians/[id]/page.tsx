@@ -37,10 +37,12 @@ const Technician = () => {
   };
 
   const formatBusinessTime = (isoString: string) => {
-    const timeZone = "est";
-    const zonedDate = toZonedTime(isoString, timeZone);
+    // const timeZone = "est";
+    // const zonedDate = toZonedTime(isoString, timeZone);
 
-    return format(zonedDate, "MMM d yy, h:mm a", { timeZone });
+    // return format(zonedDate, "MMM d yy, h:mm a", { timeZone });
+
+    return format(isoString, "MMM d yy, h:mm a");
   };
 
   return (
@@ -82,7 +84,15 @@ const Technician = () => {
                     </TableCell>
                     <TableCell>{formatBusinessTime(item.time)}</TableCell>
                     <TableCell>$0.00</TableCell>
-                    <TableCell>{item.status}</TableCell>
+                    <TableCell
+                      className={`${
+                        item.status === "active"
+                          ? "text-green-600"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {item.status}
+                    </TableCell>
                   </TableRow>
                 )
             )}

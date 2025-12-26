@@ -9,10 +9,9 @@ export async function POST(req: NextRequest) {
     );
 
     const body = await req.json();
-    const { first_name, last_name, appointment_time, technician_id, services } =
-      body.args || body;
+    const { appointment_time, technician_id, services } = body.args || body;
 
-    const customer_phone = "6998909982";
+    const customer_phone = "999999";
     const business_phone = "1111111111";
 
     // Business
@@ -29,8 +28,6 @@ export async function POST(req: NextRequest) {
       .eq("phone_number", customer_phone)
       .eq("business_id", business?.id)
       .single();
-
-    console.log(customer);
 
     const { error: bookingError } = await supabase.from("appointments").insert([
       {

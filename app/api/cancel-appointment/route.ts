@@ -13,12 +13,18 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const customer_phone = "9991111000";
+    const customer_phone = "999999";
     const business_phone = "1111111111";
 
     const { appointment_time } = body.args || {};
 
-    const { data: businesses, error: businessesError } = await supabase
+    if (!appointment_time) {
+      return NextResponse.json(
+        `Give them the appointments with the status: active that they have booked and ask them for confirmation`
+      );
+    }
+
+    const { data: businesses } = await supabase
       .from("businesses")
       .select("id")
       .eq("phone_number", business_phone)
@@ -30,16 +36,19 @@ export async function POST(req: NextRequest) {
       .eq("phone_number", customer_phone)
       .single();
 
-    const { data: appointments } = await supabase
+    const { data: appointments, error } = await supabase
       .from("appointments")
-      .delete()
+      .update({ status: "cancelled" })
       .eq("business_id", businesses?.id)
       .eq("customer_id", existingCustomer?.id)
       .eq("time", appointment_time);
 
+    console.log(error);
+
+    if (error) throw error;
+
     return NextResponse.json({
       success: true,
-      // The AI reads this 'message' field to know what to say
       message: `Appointment cancelled successfully for ${appointments}. Ask if they would like to reschedule for a different time.`,
     });
   } catch (error: any) {
