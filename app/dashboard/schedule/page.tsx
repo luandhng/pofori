@@ -1,7 +1,6 @@
 "use client";
 
 import { useAppointments } from "@/hooks/use-appointments";
-import { useBusiness } from "@/hooks/use-business";
 
 const Schedule = () => {
   const { data, isLoading } = useAppointments();

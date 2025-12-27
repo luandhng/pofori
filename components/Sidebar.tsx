@@ -11,16 +11,17 @@ import {
   NotificationIcon,
   HeadsetIcon,
 } from "@phosphor-icons/react/ssr";
+import Link from "next/link";
 
 export function Sidebar() {
   return (
     <div className="w-64 flex flex-col justify-between p-2 pr-4">
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between p-2 rounded-md">
-          <div className="flex items-center gap-1.5">
+          <Link href={"/dashboard"} className="flex items-center gap-1.5">
             <div className="bg-black w-3.5 h-3.5 rounded-sm"></div>
             <p>Super Salon</p>
-          </div>
+          </Link>
 
           <NotificationIcon size={15} weight="fill" />
         </div>
