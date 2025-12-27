@@ -1,5 +1,5 @@
 const CustomerList = () => {
-  return <div>love is here</div>;
+  return <div></div>;
 };
 
 export default CustomerList;
