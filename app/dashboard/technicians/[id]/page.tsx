@@ -37,12 +37,10 @@ const Technician = () => {
   };
 
   const formatBusinessTime = (isoString: string) => {
-    // const timeZone = "est";
-    // const zonedDate = toZonedTime(isoString, timeZone);
+    const timeZone = "est";
+    const zonedDate = toZonedTime(isoString, timeZone);
 
-    // return format(zonedDate, "MMM d yy, h:mm a", { timeZone });
-
-    return format(isoString, "MMM d yy, h:mm a");
+    return format(zonedDate, "MMM d yy, h:mm a", { timeZone });
   };
 
   return (
