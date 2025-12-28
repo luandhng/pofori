@@ -1,19 +1,21 @@
 "use client";
 
+import { MainCalendar } from "@/components/MainCalendar";
 import { useAppointments } from "@/hooks/use-appointments";
 
 const Schedule = () => {
-  const { data, isLoading } = useAppointments();
+  const { data: appointments, isLoading } = useAppointments();
 
   return (
-    <div>
+    <div className="h-full">
       {isLoading ? (
         "Loading.."
       ) : (
-        <div>
-          {data?.map((item: any, index: number) => (
+        <div className="h-full">
+          {/* {data?.map((item: any, index: number) => (
             <div key={index}>{item.time}</div>
-          ))}
+          ))} */}
+          <MainCalendar events={appointments || []} />
         </div>
       )}
     </div>

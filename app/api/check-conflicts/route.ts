@@ -27,14 +27,17 @@ async function calculateServiceDuration(
 
     // Match requested services with database services
     for (const reqService of requestedServices) {
-      const matchedService = servicesData.find((s: any) =>
-        s.service.toLowerCase().includes(reqService.toLowerCase()) ||
-        reqService.toLowerCase().includes(s.service.toLowerCase())
+      const matchedService = servicesData.find(
+        (s: any) =>
+          s.service.toLowerCase().includes(reqService.toLowerCase()) ||
+          reqService.toLowerCase().includes(s.service.toLowerCase())
       );
 
       if (matchedService) {
         totalDuration += matchedService.duration || 60;
-        console.log(`   ✓ ${matchedService.service}: ${matchedService.duration}m`);
+        console.log(
+          `   ✓ ${matchedService.service}: ${matchedService.duration}m`
+        );
       } else {
         // Service not found, use default 60 min
         totalDuration += 60;
@@ -116,7 +119,9 @@ export async function POST(req: NextRequest) {
     const reqStart = reqDate.getTime();
     const reqEnd = reqStart + reqDurationMinutes * 60 * 1000;
 
-    console.log(`🕒 Time Range: ${reqDate.toLocaleString()} (${reqDurationMinutes}m)`);
+    console.log(
+      `🕒 Time Range: ${reqDate.toLocaleString()} (${reqDurationMinutes}m)`
+    );
 
     // 6. Build query for existing appointments
     // Fetch all future active appointments for this business
@@ -161,7 +166,9 @@ export async function POST(req: NextRequest) {
       const apptEnd = apptStart + apptDuration * 60 * 1000;
 
       console.log(
-        `   Checking vs Appt #${appt.id}: ${new Date(appt.time).toLocaleString()} (${apptDuration}m)`
+        `   Checking vs Appt #${appt.id}: ${new Date(
+          appt.time
+        ).toLocaleString()} (${apptDuration}m)`
       );
 
       // Check for overlap: (StartA < EndB) AND (EndA > StartB)
@@ -169,9 +176,17 @@ export async function POST(req: NextRequest) {
 
       if (isOverlapping) {
         console.log(`   ❌ CONFLICT DETECTED!`);
-        console.log(`      Requested: ${new Date(reqStart).toLocaleString()} - ${new Date(reqEnd).toLocaleString()}`);
-        console.log(`      Existing:  ${new Date(apptStart).toLocaleString()} - ${new Date(apptEnd).toLocaleString()}`);
-        
+        console.log(
+          `      Requested: ${new Date(reqStart).toLocaleString()} - ${new Date(
+            reqEnd
+          ).toLocaleString()}`
+        );
+        console.log(
+          `      Existing:  ${new Date(
+            apptStart
+          ).toLocaleString()} - ${new Date(apptEnd).toLocaleString()}`
+        );
+
         conflictingAppointments.push({
           id: appt.id,
           time: appt.time,
@@ -192,7 +207,10 @@ export async function POST(req: NextRequest) {
 
         // Get the day of week from the requested appointment time
         const appointmentDay = new Date(appointment_time)
-          .toLocaleString("en-US", { weekday: "long", timeZone: business.time_zone || "UTC" })
+          .toLocaleString("en-US", {
+            weekday: "long",
+            timeZone: business.time_zone || "UTC",
+          })
           .toLowerCase();
 
         console.log(`📅 Requested day: ${appointmentDay}`);
@@ -217,7 +235,13 @@ export async function POST(req: NextRequest) {
           );
 
           if (!isAvailableOnDay) {
-            console.log(`   ❌ ${tech.first_name}: not available on ${appointmentDay} (works: ${availableDays.join(", ")})`);
+            console.log(
+              `   ❌ ${
+                tech.first_name
+              }: not available on ${appointmentDay} (works: ${availableDays.join(
+                ", "
+              )})`
+            );
             return false;
           }
 
@@ -226,7 +250,9 @@ export async function POST(req: NextRequest) {
         });
 
         if (availableTechnicians && availableTechnicians.length > 0) {
-          console.log(`✅ Found ${availableTechnicians.length} available technician(s)`);
+          console.log(
+            `✅ Found ${availableTechnicians.length} available technician(s)`
+          );
           return NextResponse.json({
             available: true,
             available_technicians: availableTechnicians.map((t: any) => ({
@@ -243,7 +269,9 @@ export async function POST(req: NextRequest) {
           });
         }
       } else {
-        console.log("✅ No conflicts found - time available for any technician");
+        console.log(
+          "✅ No conflicts found - time available for any technician"
+        );
         return NextResponse.json({
           available: true,
           message: "Time is available.",

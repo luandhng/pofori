@@ -12,10 +12,11 @@ import {
   HeadsetIcon,
 } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
+import { TechnicianSidebar } from "./TechnicianSidebar";
 
 export function Sidebar() {
   return (
-    <div className="w-64 flex flex-col justify-between p-2 pr-4">
+    <div className="w-64 flex flex-col justify-between p-2 border-r">
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between p-2 rounded-md">
           <Link href={"/dashboard"} className="flex items-center gap-1.5">
@@ -37,14 +38,14 @@ export function Sidebar() {
               icon={<MoneyIcon weight="fill" size={15} />}
               text="Transactions"
             />
-            <Button
+            {/* <Button
               icon={<UserGearIcon weight="fill" size={15} />}
               text="Technicians"
-            />
-            <Button
+            /> */}
+            {/* <Button
               icon={<WalletIcon weight="fill" size={15} />}
               text="Payroll"
-            />
+            /> */}
             <Button
               icon={<ScissorsIcon weight="fill" size={15} />}
               text="Services"
@@ -53,22 +54,18 @@ export function Sidebar() {
               icon={<HeadsetIcon weight="fill" size={15} />}
               text="AI Receptionist"
             />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 w-full">
-          <p className="px-2 text-xs text-neutral-500 font-medium">Customers</p>
-          <div className="w-full flex flex-col gap-1">
             <Button
               icon={<UsersIcon weight="fill" size={15} />}
               text="Customer List"
             />
-            <Button
+            {/* <Button
               icon={<CrownSimpleIcon weight="fill" size={15} />}
               text="Loyalty Program"
-            />
+            /> */}
           </div>
         </div>
+
+        <TechnicianSidebar />
       </div>
 
       <div className="">

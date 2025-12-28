@@ -14,13 +14,13 @@ export default function DashboardLayout({
 }>) {
   return (
     <Providers>
-      <div className="flex h-screen p-2 bg-[#fafafa]">
+      <div className="flex h-screen">
         <Sidebar />
 
-        <div className="border border-neutral-200 p-8 flex flex-col gap-8 h-full w-full bg-white rounded-2xl">
-          <ContentTitle />
+        <div className="flex-1">
+          {/* <ContentTitle /> */}
 
-          <div className="">{children}</div>
+          <div className="h-full">{children}</div>
         </div>
       </div>
     </Providers>
