@@ -12,12 +12,25 @@ export const fetchBusiness = async () => {
 };
 
 // Fetch with businessId
+// fetchAppointment.ts
 export const fetchAppointment = async (businessId: string) => {
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("appointments")
-    .select()
+    .select(
+      `
+      *,
+      appointment_services (
+        service_id,
+        services (
+          service,
+          duration,
+          price
+        )
+      )
+    `
+    )
     .eq("business_id", businessId);
 
   return data;

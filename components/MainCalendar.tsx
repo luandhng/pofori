@@ -19,6 +19,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils"; // Or standard clsx/tailwind-merge import
 import { useCustomers } from "@/hooks/use-customers";
 import { useTechnicians } from "@/hooks/use-technicians";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Input } from "./ui/input";
+import { SidebarSimpleIcon } from "@phosphor-icons/react/dist/ssr";
 
 // --- TYPES ---
 export type Event = {
@@ -67,9 +70,12 @@ export function MainCalendar({ events = [] }: CalendarProps) {
     <div className="flex flex-col h-full w-full bg-white text-slate-800">
       {/* HEADER */}
       <div className="flex items-center justify-between py-2 px-4">
-        <h2 className="text-2xl font-bold text-slate-900">
-          {format(currentDate, "MMMM yyyy")}
-        </h2>
+        <div className="flex items-center gap-4">
+          <SidebarSimpleIcon size={16} />
+          <h2 className="font-semibold">
+            {format(currentDate, "dd MMM yyyy")}
+          </h2>
+        </div>
 
         <div className="flex items-center gap-2">
           <button
@@ -135,24 +141,56 @@ export function MainCalendar({ events = [] }: CalendarProps) {
 
               {/* EVENTS LIST */}
               <div className="flex flex-col gap-1 mt-1">
-                {dayEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className={`text-xs px-1.5 flex items-center bg-${
-                      technicians?.find((t) => t.id === event.technician_id)
-                        ?.color
-                    }-500 justify-between text-white py-0.5 rounded truncate font-medium`}
-                  >
-                    <p>
-                      {customers?.find((c) => c.id === event.customer_id)
-                        ?.first_name +
-                        " " +
-                        customers?.find((c) => c.id === event.customer_id)
-                          ?.last_name}
-                    </p>
-                    <p>{format(event.time, "hh:mm a")}</p>
-                  </div>
-                ))}
+                {dayEvents.map((event) => {
+                  const customerName =
+                    customers?.find((c) => c.id === event.customer_id)
+                      ?.first_name +
+                    " " +
+                    customers?.find((c) => c.id === event.customer_id)
+                      ?.last_name;
+
+                  const technicianName =
+                    technicians?.find((t) => t.id === event.technician_id)
+                      ?.first_name +
+                    " " +
+                    technicians?.find((t) => t.id === event.technician_id)
+                      ?.last_name;
+
+                  return (
+                    <Popover key={event.id}>
+                      <PopoverTrigger
+                        className={`text-xs px-1.5 cursor-pointer flex items-center justify-between text-white py-0.5 rounded truncate font-medium`}
+                        style={{
+                          backgroundColor:
+                            technicians?.find(
+                              (t) => t.id === event.technician_id
+                            )?.color || "gray", // Fallback color
+                        }}
+                      >
+                        <p>{customerName}</p>
+
+                        <p>{format(event.time, "hh:mm a")}</p>
+                      </PopoverTrigger>
+                      <PopoverContent className="flex bg-white/50 backdrop-blur-xl p-3 flex-col gap-3 rounded-2xl">
+                        <Input
+                          onChange={() => {}}
+                          placeholder="Customer"
+                          value={customerName}
+                        />
+                        <Input
+                          onChange={() => {}}
+                          placeholder="Technician"
+                          value={technicianName}
+                        />
+                        <div className="flex gap-2">
+                          <Input type="time" />
+                          <Input type="time" />
+                        </div>
+                        <Input type="date" />
+                      </PopoverContent>
+                    </Popover>
+                  );
+                })}
               </div>
             </div>
           );

@@ -1,10 +1,36 @@
 "use client";
 
 import { MainCalendar } from "@/components/MainCalendar";
+import { WeekCalendar, CalendarEvent } from "@/components/WeekCalendar";
 import { useAppointments } from "@/hooks/use-appointments";
+import { addMinutes } from "date-fns";
 
 const Schedule = () => {
-  const { data: appointments, isLoading } = useAppointments();
+  const { data: rawAppointments, isLoading } = useAppointments();
+
+  const events: CalendarEvent[] =
+    rawAppointments?.map((appt: any) => {
+      const serviceList =
+        appt.appointment_services?.map((item: any) => item.services) || [];
+
+      const totalDuration = serviceList.reduce(
+        (sum: number, service: any) => sum + (service?.duration || 0),
+        0
+      );
+
+      const start = new Date(appt.time);
+      const end = addMinutes(start, totalDuration || 0);
+
+      return {
+        id: appt.id,
+        technician_id: appt.technician_id,
+        customer_id: appt.customer_id,
+        appointment_services: appt.appointment_services,
+        time: start,
+        end: end,
+        color: "blue",
+      };
+    }) || [];
 
   return (
     <div className="h-full">
@@ -12,10 +38,7 @@ const Schedule = () => {
         "Loading.."
       ) : (
         <div className="h-full">
-          {/* {data?.map((item: any, index: number) => (
-            <div key={index}>{item.time}</div>
-          ))} */}
-          <MainCalendar events={appointments || []} />
+          <WeekCalendar events={events} />
         </div>
       )}
     </div>

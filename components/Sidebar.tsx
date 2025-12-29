@@ -16,7 +16,7 @@ import { TechnicianSidebar } from "./TechnicianSidebar";
 
 export function Sidebar() {
   return (
-    <div className="w-64 flex flex-col justify-between p-2 border-r">
+    <div className="w-56 flex flex-col justify-between p-2 border-r border-slate-200">
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between p-2 rounded-md">
           <Link href={"/dashboard"} className="flex items-center gap-1.5">

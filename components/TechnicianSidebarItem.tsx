@@ -20,10 +20,32 @@ export function TechnicianSidebarItem({
     >
       <Checkbox
         checked={true}
-        className={`data-[state=checked]:bg-${color}-500 data-[state=checked]:border-${color}-500`}
+        className={`${
+          color === "red" &&
+          "data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+        } ${
+          color === "blue" &&
+          "data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+        } ${
+          color === "green" &&
+          "data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+        } ${
+          color === "yellow" &&
+          "data-[state=checked]:bg-yellow-500 data-[state=checked]:border-yellow-500"
+        } ${
+          color === "orange" &&
+          "data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+        } ${
+          color === "purple" &&
+          "data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+        } ${
+          color === "pink" &&
+          "data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+        }`}
       />
       <p>
-        {first_name} {last_name}
+        {first_name.charAt(0).toUpperCase() + first_name.slice(1)}{" "}
+        {last_name.charAt(0).toUpperCase() + last_name.slice(1)}
       </p>
     </Link>
   );
