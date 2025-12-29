@@ -10,11 +10,24 @@ import {
   getHours,
   getMinutes,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  ChevronLeft,
+  ChevronRight,
+  Clock8Icon,
+} from "lucide-react";
 import { useTechnicians } from "@/hooks/use-technicians";
 import { useCustomers } from "@/hooks/use-customers";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Input } from "./ui/input";
+import { ComboboxInputCalendar } from "./ComboboxInputCalendar";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
+import ComboboxMultiple from "./ComboboxMultiple";
+import { useUpdateAppointment } from "@/hooks/use-update-appointment";
+import { useSyncServices } from "@/hooks/use-insert-appointment-services";
+import { useServices } from "@/hooks/use-services";
 
 // --- CONFIG ---
 const CELL_HEIGHT = 60;
@@ -55,6 +68,10 @@ export function WeekCalendar({
   const [currentTime, setCurrentTime] = useState(new Date());
   const { data: technicians, isLoading: isLoadingTechs } = useTechnicians();
   const { data: customers } = useCustomers();
+  const { data: services } = useServices();
+
+  const { mutate } = useUpdateAppointment();
+  const syncServices = useSyncServices(services || []); // Pass to hook
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -184,7 +201,7 @@ export function WeekCalendar({
               >
                 <div className="absolute -left-[5px] w-2.5 h-2.5 bg-red-500 rounded-full"></div>
                 <div className="w-full border-t border-red-500"></div>
-                <div className="absolute right-0 -mt-6 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-l-sm">
+                <div className="absolute -left-12  bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
                   {format(currentTime, "HH:mm")}
                 </div>
               </div>
@@ -244,14 +261,117 @@ export function WeekCalendar({
                             </div>
                             <div>
                               {event.appointment_services?.map((service) => (
-                                <div key={service.id}>
+                                <div key={service.services?.id}>
                                   {service.services?.service}
                                 </div>
                               ))}
                             </div>
                           </PopoverTrigger>
-                          <PopoverContent className="p-2">
-                            <Input placeholder="Enter service" />
+                          <PopoverContent
+                            side="right"
+                            className="w-80 p-0 shadow-xl flex flex-col divide-y divide-slate-200"
+                          >
+                            <div className="flex gap-2 p-2">
+                              <Input placeholder="First name" />
+                              <Input placeholder="Last name" />
+                            </div>
+
+                            <div className="flex gap-2 p-2">
+                              <div className="relative">
+                                <div className="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center pl-3 peer-disabled:opacity-50">
+                                  <Clock8Icon className="size-4" />
+                                  <span className="sr-only">User</span>
+                                </div>
+                                <Input
+                                  type="time"
+                                  id="time-picker"
+                                  onBlur={(e) => {
+                                    const newTimeString = e.target.value; // e.g., "14:30"
+                                    if (!newTimeString) return;
+
+                                    // Create a NEW Date object based on the current event date
+                                    const newDate = new Date(event.time);
+
+                                    // Extract hours and minutes from the picker input
+                                    const [hours, minutes] = newTimeString
+                                      .split(":")
+                                      .map(Number);
+
+                                    // Set them on the date object
+                                    newDate.setHours(hours);
+                                    newDate.setMinutes(minutes);
+
+                                    // 3. Trigger the mutation
+                                    mutate({
+                                      id: event.id,
+                                      updates: { time: newDate.toISOString() },
+                                    });
+                                  }}
+                                  step="1"
+                                  defaultValue={format(event.time, "HH:mm")}
+                                  className="peer bg-background appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                />
+                              </div>
+
+                              <Popover>
+                                <PopoverTrigger asChild className="">
+                                  <Button
+                                    variant="outline"
+                                    id="date"
+                                    className=" justify-between font-normal"
+                                  >
+                                    <span className="flex items-center">
+                                      <CalendarIcon className="mr-2" />
+                                      {event.time
+                                        ? format(event.time, "MM/dd/yyyy")
+                                        : "Pick a date"}
+                                    </span>
+                                    <ChevronDownIcon />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-auto overflow-hidden p-0"
+                                  align="start"
+                                >
+                                  <Calendar
+                                    selected={event.time}
+                                    mode="single"
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+
+                            <div className="flex gap-2 p-2">
+                              <ComboboxInputCalendar
+                                placeholder="technician"
+                                defaultValue={event.technician_id}
+                                list={technicians}
+                                onSelect={(id) => {
+                                  if (!id) return;
+
+                                  mutate({
+                                    id: event.id,
+                                    updates: { technician_id: id },
+                                  });
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex gap-2 p-2">
+                              <ComboboxMultiple
+                                defaultValues={
+                                  event.appointment_services?.map(
+                                    (s) => s.services.id
+                                  ) || []
+                                }
+                                onChange={(newServiceIds) => {
+                                  syncServices.mutate({
+                                    id: event.id,
+                                    serviceIds: newServiceIds, // Pass the full new array of IDs
+                                  });
+                                }}
+                              />
+                            </div>
                           </PopoverContent>
                         </Popover>
                       );

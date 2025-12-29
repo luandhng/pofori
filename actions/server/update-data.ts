@@ -7,6 +7,15 @@ interface Props {
   newHours: string;
 }
 
+interface UpdateProps {
+  id: string;
+  data: {
+    time?: string; // Use the exact column name from your DB (likely start_time)
+    technician_id?: string;
+    // Add other fields here if needed
+  };
+}
+
 export const updateBusinessHours = async ({ id, newHours }: Props) => {
   const supabase = await createClient();
 
@@ -15,7 +24,66 @@ export const updateBusinessHours = async ({ id, newHours }: Props) => {
     .update({ operating_hours: newHours })
     .eq("id", id);
 
-  console.log(error);
-
   return data;
+};
+
+export const updateAppointment = async ({ id, data }: UpdateProps) => {
+  const supabase = await createClient();
+
+  const { data: result, error } = await supabase
+    .from("appointments")
+    .update(data) // <--- dynamically updates whatever fields you pass
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("Supabase Error:", error);
+    throw new Error(error.message);
+  }
+
+  return result;
+};
+
+export const syncAppointmentServices = async ({
+  appointment_id,
+  service_ids,
+}: {
+  appointment_id: string;
+  service_ids: string[];
+}) => {
+  const supabase = await createClient();
+
+  // 1. DELETE existing services for this appointment
+  // This removes items you unchecked
+  const { error: deleteError } = await supabase
+    .from("appointment_services")
+    .delete()
+    .eq("appointment_id", appointment_id);
+
+  if (deleteError) {
+    console.error("Error deleting old services:", deleteError);
+    throw new Error(deleteError.message);
+  }
+
+  // 2. PREPARE new data rows
+  // If the list is empty (you cleared all services), stop here
+  if (service_ids.length === 0) return;
+
+  const servicesToInsert = service_ids.map((serviceId) => ({
+    appointment_id: appointment_id,
+    service_id: serviceId,
+  }));
+
+  // 3. INSERT the new list
+  const { data: result, error: insertError } = await supabase
+    .from("appointment_services")
+    .insert(servicesToInsert)
+    .select();
+
+  if (insertError) {
+    console.error("Error inserting new services:", insertError);
+    throw new Error(insertError.message);
+  }
+
+  return result;
 };

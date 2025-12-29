@@ -171,7 +171,7 @@ export function MainCalendar({ events = [] }: CalendarProps) {
 
                         <p>{format(event.time, "hh:mm a")}</p>
                       </PopoverTrigger>
-                      <PopoverContent className="flex bg-white/50 backdrop-blur-xl p-3 flex-col gap-3 rounded-2xl">
+                      <PopoverContent className="flex bg-white/50 backdrop-blur-xl xp-3 flex-col gap-3 rounded-2xl">
                         <Input
                           onChange={() => {}}
                           placeholder="Customer"

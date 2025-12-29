@@ -24,6 +24,7 @@ export const fetchAppointment = async (businessId: string) => {
       appointment_services (
         service_id,
         services (
+          id,
           service,
           duration,
           price
