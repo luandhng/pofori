@@ -233,7 +233,7 @@ export function WeekCalendar({
     <div className="flex flex-col h-full overflow-hidden select-none">
       {/* HEADER */}
       <div className="flex items-center justify-between p-4 bg-white z-30 relative">
-        <h2 className="text-xl font-bold tracking-tight">
+        <h2 className="text-sm font-bold tracking-tight">
           {format(currentDate, "d MMMM yyyy")}
         </h2>
         <div className="flex items-center gap-2">
@@ -507,6 +507,31 @@ export function WeekCalendar({
                                   >
                                     <Calendar
                                       selected={event.time}
+                                      onSelect={(newDate) => {
+                                        if (!newDate) return;
+
+                                        // 2. Get the time from the CURRENT event
+                                        const originalHours = getHours(
+                                          event.time
+                                        );
+                                        const originalMinutes = getMinutes(
+                                          event.time
+                                        );
+
+                                        // 3. Set that time onto the NEW date
+                                        const dateWithOriginalTime = setMinutes(
+                                          setHours(newDate, originalHours),
+                                          originalMinutes
+                                        );
+
+                                        // 4. Save
+                                        mutate({
+                                          id: event.id,
+                                          updates: {
+                                            time: dateWithOriginalTime.toISOString(),
+                                          },
+                                        });
+                                      }}
                                       mode="single"
                                     />
                                   </PopoverContent>
