@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { UserCircleIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface Props {
   placeholder: string;
@@ -37,13 +38,15 @@ export function ComboboxInputCalendar({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="col-span-3">
         <Button
+          size="sm"
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-fit text-xs border-none shadow-none justify-between"
         >
+          <UserCircleIcon className="text-blue-600" />
           {/* FIX 1: Look inside 'list', not 'frameworks' */}
           {value
             ? list.find((item) => item.id === value)
@@ -52,7 +55,7 @@ export function ComboboxInputCalendar({
                 }`
               : `Select ${placeholder}`
             : `Select ${placeholder}`}
-          <ChevronsUpDown className="opacity-50" />
+          {/* <ChevronsUpDown className="opacity-50" /> */}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0">

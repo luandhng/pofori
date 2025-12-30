@@ -61,7 +61,7 @@ export default function ComboboxMultiple({
   };
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-2 col-span-3">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -69,7 +69,7 @@ export default function ComboboxMultiple({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="h-auto border-none shadow-none has-[>svg]:pl-0 py-0 w-full justify-between"
+            className="h-auto border-none shadow-none w-full justify-between"
           >
             <div className="flex flex-wrap items-center gap-1 pr-2">
               {selectedValues.length > 0 ? (
@@ -101,13 +101,13 @@ export default function ComboboxMultiple({
                 </span>
               )}
             </div>
-            <ChevronsUpDownIcon
+            {/* <ChevronsUpDownIcon
               className="text-muted-foreground/50 h-4 w-4 shrink-0"
               aria-hidden="true"
-            />
+            /> */}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0" align="start">
+        <PopoverContent className="w-75 p-0" align="start">
           <Command>
             <CommandInput placeholder="Search services..." />
             <CommandList>
