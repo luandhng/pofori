@@ -51,14 +51,19 @@ async function findAvailableTechnician(
     const qualifiedTechs = technicians.filter((tech: any) => {
       const techSkills = tech.skills || [];
       const hasAllSkills = services.every((service) =>
-        techSkills.some((skill: string) => 
-          skill.toLowerCase().includes(service.toLowerCase()) ||
-          service.toLowerCase().includes(skill.toLowerCase())
+        techSkills.some(
+          (skill: string) =>
+            skill.toLowerCase().includes(service.toLowerCase()) ||
+            service.toLowerCase().includes(skill.toLowerCase())
         )
       );
-      
-      console.log(`   ${tech.first_name} ${tech.last_name}: skills=${techSkills.join(", ")} - ${hasAllSkills ? "✅ QUALIFIED" : "❌ not qualified"}`);
-      
+
+      console.log(
+        `   ${tech.first_name} ${tech.last_name}: skills=${techSkills.join(
+          ", "
+        )} - ${hasAllSkills ? "✅ QUALIFIED" : "❌ not qualified"}`
+      );
+
       return hasAllSkills;
     });
 
@@ -68,7 +73,8 @@ async function findAvailableTechnician(
       console.log("   → Falling back to any available technician");
     }
 
-    const candidateTechs = qualifiedTechs.length > 0 ? qualifiedTechs : technicians;
+    const candidateTechs =
+      qualifiedTechs.length > 0 ? qualifiedTechs : technicians;
 
     // 3. Check availability for each candidate
     const reqDate = new Date(appointmentTime);
@@ -167,7 +173,7 @@ export async function POST(req: NextRequest) {
 
     // --- 3.5. AUTO-ASSIGN TECHNICIAN IF "ANYONE" ---
     let finalTechnicianId = technician_id;
-    
+
     if (!technician_id || technician_id.toLowerCase() === "anyone") {
       console.log("🤖 Auto-assigning technician...");
       const assignedId = await findAvailableTechnician(
@@ -176,14 +182,18 @@ export async function POST(req: NextRequest) {
         bookingTimeUtc,
         services || []
       );
-      
+
       if (!assignedId) {
-        return NextResponse.json({
-          success: false,
-          error: "No available technicians found for the requested time and services.",
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "No available technicians found for the requested time and services.",
+          },
+          { status: 400 }
+        );
       }
-      
+
       finalTechnicianId = assignedId;
       console.log(`✅ Auto-assigned technician: ${assignedId}`);
     }

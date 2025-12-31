@@ -53,8 +53,6 @@ export const syncAppointmentServices = async ({
 }) => {
   const supabase = await createClient();
 
-  // 1. DELETE existing services for this appointment
-  // This removes items you unchecked
   const { error: deleteError } = await supabase
     .from("appointment_services")
     .delete()
@@ -65,8 +63,6 @@ export const syncAppointmentServices = async ({
     throw new Error(deleteError.message);
   }
 
-  // 2. PREPARE new data rows
-  // If the list is empty (you cleared all services), stop here
   if (service_ids.length === 0) return;
 
   const servicesToInsert = service_ids.map((serviceId) => ({
@@ -74,7 +70,6 @@ export const syncAppointmentServices = async ({
     service_id: serviceId,
   }));
 
-  // 3. INSERT the new list
   const { data: result, error: insertError } = await supabase
     .from("appointment_services")
     .insert(servicesToInsert)

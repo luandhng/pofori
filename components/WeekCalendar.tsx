@@ -12,59 +12,25 @@ import {
   setHours,
   setMinutes,
   differenceInMinutes,
-  addMinutes,
 } from "date-fns";
-import {
-  CalendarIcon,
-  ChevronDownIcon,
-  ChevronLeft,
-  ChevronRight,
-  Clock8Icon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+// --- IMPORTS ---
 import { useTechnicians } from "@/hooks/use-technicians";
 import { useCustomers } from "@/hooks/use-customers";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Input } from "./ui/input";
-import { ComboboxInputCalendar } from "./ComboboxInputCalendar";
-import { Button } from "./ui/button";
-import { Calendar } from "./ui/calendar";
-import ComboboxMultiple from "./ComboboxMultiple";
 import { useUpdateAppointment } from "@/hooks/use-update-appointment";
-import { useSyncServices } from "@/hooks/use-insert-appointment-services";
-import { useServices } from "@/hooks/use-services";
-import { Label } from "./ui/label";
-import {
-  CalendarDotIcon,
-  ClockIcon,
-  UserCircleIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+
+// --- IMPORT THE NEW COMPONENT ---
+import AppointmentForm from "./AppointmentForm";
+import { CalendarEvent } from "@/app/types";
 
 // --- CONFIG ---
 const CELL_HEIGHT = 60;
 const HOURS_IN_DAY = 24;
 const GRID_TOTAL_HEIGHT = HOURS_IN_DAY * CELL_HEIGHT;
 const SNAP_MINUTES = 15;
-
-// --- TYPES ---
-export type CalendarEvent = {
-  id: string;
-  technician_id: string;
-  time: Date;
-  end: Date;
-  customer_id: string;
-  appointment_services: AppointmentService[];
-  color?: string;
-};
-
-interface AppointmentService {
-  id: string;
-  services: Service;
-}
-
-interface Service {
-  id: string;
-  service: string;
-}
 
 interface DayCalendarProps {
   events?: CalendarEvent[];
@@ -78,8 +44,7 @@ export function WeekCalendar({
   const [currentDate, setCurrentDate] = useState(initialDate);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // --- STATE & REFS ---
-  // We use a ref for drag data because dataTransfer is not accessible during 'dragOver'
+  // --- DRAG STATE ---
   const dragRef = useRef<{
     id: string;
     offsetY: number;
@@ -95,9 +60,7 @@ export function WeekCalendar({
 
   const { data: technicians, isLoading: isLoadingTechs } = useTechnicians();
   const { data: customers } = useCustomers();
-  const { data: services } = useServices();
   const { mutate } = useUpdateAppointment();
-  const syncServices = useSyncServices(services || []);
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -111,7 +74,7 @@ export function WeekCalendar({
 
   const hours = Array.from({ length: HOURS_IN_DAY }, (_, i) => i);
 
-  // --- HELPER: TIME CALCULATION ---
+  // --- HELPERS ---
   const getVerticalPosition = (date: Date) => {
     const h = getHours(date);
     const m = getMinutes(date);
@@ -123,53 +86,34 @@ export function WeekCalendar({
     columnTop: number,
     offsetY: number
   ) => {
-    // 1. Where is the mouse inside the column?
     const relativeY = clientY - columnTop;
-
-    // 2. Adjust for where we grabbed the box (so the top of the box lands where we want)
     const adjustedY = relativeY - offsetY;
-
-    // 3. Convert to minutes
     const pixelsPerMinute = CELL_HEIGHT / 60;
     const rawMinutes = adjustedY / pixelsPerMinute;
-
-    // 4. Snap
     const snappedMinutes = Math.round(rawMinutes / SNAP_MINUTES) * SNAP_MINUTES;
     const safeMinutes = Math.max(0, Math.min(snappedMinutes, 24 * 60));
-
-    // 5. Create Date
     const h = Math.floor(safeMinutes / 60);
     const m = safeMinutes % 60;
     return setMinutes(setHours(new Date(currentDate), h), m);
   };
 
   // --- DRAG HANDLERS ---
-
   const handleDragStart = (
     e: React.DragEvent,
     id: string,
     startTime: Date,
     endTime: Date
   ) => {
-    // Calculate offset: Mouse Y - Box Top Y
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const offsetY = e.clientY - rect.top;
     const duration = differenceInMinutes(endTime, startTime);
-
-    // Store in Ref (accessible everywhere immediately)
     dragRef.current = { id, offsetY, duration, originalTime: startTime };
-
-    // Set drag image (optional, browsers do this automatically but this helps consistency)
     e.dataTransfer.effectAllowed = "move";
-
-    // Optional: Hide the original element visually if you want,
-    // but usually better to keep it opacity-50 via CSS classes below.
   };
 
   const handleDragOver = (e: React.DragEvent, techId: string) => {
-    e.preventDefault(); // MANDATORY
+    e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-
     if (!dragRef.current) return;
 
     const columnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -179,7 +123,6 @@ export function WeekCalendar({
       dragRef.current.offsetY
     );
 
-    // Only update state if time or column changed to prevent infinite re-renders
     setDropIndicator((prev) => {
       if (
         prev &&
@@ -192,16 +135,9 @@ export function WeekCalendar({
     });
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    // We don't clear immediately on leave because it flickers when crossing child elements (like the ghost box)
-    // The ghost box has 'pointer-events-none' to help this, but it's safer to clear on drop or dragEnd.
-  };
-
   const handleDrop = (e: React.DragEvent, techId: string) => {
     e.preventDefault();
-
     if (!dragRef.current) return;
-
     const { id, offsetY } = dragRef.current;
     const columnRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const newStartTime = calculateSnappedTime(
@@ -209,16 +145,10 @@ export function WeekCalendar({
       columnRect.top,
       offsetY
     );
-
     mutate({
       id: id,
-      updates: {
-        technician_id: techId,
-        time: newStartTime.toISOString(),
-      },
+      updates: { technician_id: techId, time: newStartTime.toISOString() },
     });
-
-    // Cleanup happens in dragEnd
   };
 
   const handleDragEnd = () => {
@@ -241,10 +171,10 @@ export function WeekCalendar({
             Today
           </Button>
           <div className="flex items-center border rounded-md ml-2">
-            <button onClick={prevDay} className="p-1.5 border-r ">
+            <button onClick={prevDay} className="p-1.5 border-r">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button onClick={nextDay} className="p-1.5 ">
+            <button onClick={nextDay} className="p-1.5">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
@@ -263,16 +193,15 @@ export function WeekCalendar({
           {technicians?.map((tech) => (
             <div key={tech.id} className="flex-1 pb-2 text-center">
               {tech.first_name.charAt(0).toUpperCase() +
-                tech.first_name.slice(1).toLowerCase() +
-                " " +
-                tech.last_name.charAt(0).toUpperCase() +
+                tech.first_name.slice(1).toLowerCase()}{" "}
+              {tech.last_name.charAt(0).toUpperCase() +
                 tech.last_name.slice(1).toLowerCase()}
             </div>
           ))}
         </div>
       </div>
 
-      {/* GRID SCROLL AREA */}
+      {/* GRID */}
       <div className="flex-1 overflow-y-auto relative custom-scrollbar bg-white">
         <div className="flex min-w-full relative">
           {/* TIME AXIS */}
@@ -298,7 +227,6 @@ export function WeekCalendar({
 
           {/* MAIN CANVAS */}
           <div className="flex flex-1 relative min-w-0">
-            {/* GRID LINES */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               {hours.map((hour) => (
                 <div
@@ -309,7 +237,6 @@ export function WeekCalendar({
               ))}
             </div>
 
-            {/* CURRENT TIME INDICATOR */}
             {showCurrentTimeLine && (
               <div
                 className="absolute z-30 w-full pointer-events-none flex items-center"
@@ -317,13 +244,12 @@ export function WeekCalendar({
               >
                 <div className="absolute -left-1.5 w-3 h-3 bg-red-500 rounded-full" />
                 <div className="w-full border-t border-red-500" />
-                <div className="absolute -left-12  bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+                <div className="absolute -left-12 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
                   {format(currentTime, "HH:mm")}
                 </div>
               </div>
             )}
 
-            {/* COLUMNS */}
             <div
               className="flex flex-1 divide-x divide-slate-200 relative z-10"
               style={{ height: `${GRID_TOTAL_HEIGHT}px` }}
@@ -334,8 +260,6 @@ export function WeekCalendar({
                     e.technician_id === tech.id &&
                     isSameDay(e.time, currentDate)
                 );
-
-                // Is this column currently being hovered over?
                 const isHoverTarget = dropIndicator?.techId === tech.id;
 
                 return (
@@ -347,7 +271,6 @@ export function WeekCalendar({
                     onDragOver={(e) => handleDragOver(e, tech.id)}
                     onDrop={(e) => handleDrop(e, tech.id)}
                   >
-                    {/* --- GHOST BOX (THE PREVIEW) --- */}
                     {isHoverTarget && dropIndicator && (
                       <div
                         className="absolute inset-x-1 rounded border border-dashed border-blue-400 bg-blue-100/40 z-10 pointer-events-none flex items-center justify-center text-blue-600 text-xs font-bold"
@@ -362,13 +285,10 @@ export function WeekCalendar({
                       </div>
                     )}
 
-                    {/* --- EVENTS --- */}
                     {techEvents.map((event) => {
                       const top = getVerticalPosition(event.time);
                       const bottom = getVerticalPosition(event.end);
-                      const height = Math.max(bottom - top, 24); // Minimum height
-
-                      // If we are currently dragging THIS event, dim it
+                      const height = Math.max(bottom - top, 24);
                       const isDraggingThis = dragRef.current?.id === event.id;
 
                       return (
@@ -385,16 +305,11 @@ export function WeekCalendar({
                                 )
                               }
                               onDragEnd={handleDragEnd}
-                              className={`
-                                absolute inset-x-1 flex flex-col rounded border-l-4 border-blue-500 bg-[#EBF5FF] p-1.5 text-xs 
-                                cursor-grab active:cursor-grabbing overflow-hidden z-20 
-                                transition-all hover:brightness-95
-                                ${
-                                  isDraggingThis
-                                    ? "opacity-40 grayscale"
-                                    : "opacity-100"
-                                }
-                              `}
+                              className={`absolute inset-x-1 flex flex-col rounded border-l-4 border-blue-500 bg-[#EBF5FF] p-1.5 text-xs cursor-grab active:cursor-grabbing overflow-hidden z-20 transition-all hover:brightness-95 ${
+                                isDraggingThis
+                                  ? "opacity-40 grayscale"
+                                  : "opacity-100"
+                              }`}
                               style={{ top: `${top}px`, height: `${height}px` }}
                             >
                               <div className="font-bold text-blue-900 truncate">
@@ -414,7 +329,7 @@ export function WeekCalendar({
                                 {format(event.end, "HH:mm")}
                               </div>
                               <div className="mt-0.5 truncate text-black/60">
-                                {event.appointment_services?.map((s) => (
+                                {event.appointment_services?.map((s: any) => (
                                   <div key={s.services?.id}>
                                     {s.services?.service}
                                   </div>
@@ -424,173 +339,15 @@ export function WeekCalendar({
                           </PopoverTrigger>
                           <PopoverContent
                             side="right"
-                            className="w-85 flex p-0 flex-col shadow-none"
+                            className="w-90 flex p-0 flex-col gap-2 shadow-none"
                             align="start"
                           >
-                            <div className="border-b py-2.5 px-5">
-                              <div className="grid grid-cols-4">
-                                <Label htmlFor="customer">Customer</Label>
-                                <ComboboxInputCalendar
-                                  placeholder="customers"
-                                  defaultValue={event.customer_id}
-                                  list={customers || []}
-                                  // onSelect={(id) => {
-                                  //   if (!id) return;
-
-                                  //   mutate({
-                                  //     id: event.id,
-                                  //     updates: { customer_id: id },
-                                  //   });
-                                  // }}
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-4">
-                                <Label htmlFor="time">Time</Label>
-                                <div className="relative gap-2 pl-3 col-span-3 flex items-center">
-                                  <ClockIcon />
-                                  <Input
-                                    type="time"
-                                    id="time-picker"
-                                    onBlur={(e) => {
-                                      const newTimeString = e.target.value; // e.g., "14:30"
-                                      if (!newTimeString) return;
-
-                                      // Create a NEW Date object based on the current event date
-                                      const newDate = new Date(event.time);
-
-                                      // Extract hours and minutes from the picker input
-                                      const [hours, minutes] = newTimeString
-                                        .split(":")
-                                        .map(Number);
-
-                                      // Set them on the date object
-                                      newDate.setHours(hours);
-                                      newDate.setMinutes(minutes);
-
-                                      // 3. Trigger the mutation
-                                      mutate({
-                                        id: event.id,
-                                        updates: {
-                                          time: newDate.toISOString(),
-                                        },
-                                      });
-                                    }}
-                                    step="1"
-                                    defaultValue={format(event.time, "HH:mm")}
-                                    className="text-xs border-none p-0 shadow-none appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-4">
-                                <Label>Date</Label>
-                                <Popover>
-                                  <PopoverTrigger asChild className="col-end-3">
-                                    <Button
-                                      variant="outline"
-                                      id="date"
-                                      className="w-fit border-none text-xs font-medium shadow-none justify-between text-black"
-                                    >
-                                      <span className="flex gap-2 items-center">
-                                        <CalendarDotIcon />
-                                        {event.time
-                                          ? format(event.time, "MM/dd/yyyy")
-                                          : "Pick a date"}
-                                      </span>
-                                      <ChevronDownIcon />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    className="w-auto overflow-hidden p-0"
-                                    align="start"
-                                  >
-                                    <Calendar
-                                      selected={event.time}
-                                      onSelect={(newDate) => {
-                                        if (!newDate) return;
-
-                                        // 2. Get the time from the CURRENT event
-                                        const originalHours = getHours(
-                                          event.time
-                                        );
-                                        const originalMinutes = getMinutes(
-                                          event.time
-                                        );
-
-                                        // 3. Set that time onto the NEW date
-                                        const dateWithOriginalTime = setMinutes(
-                                          setHours(newDate, originalHours),
-                                          originalMinutes
-                                        );
-
-                                        // 4. Save
-                                        mutate({
-                                          id: event.id,
-                                          updates: {
-                                            time: dateWithOriginalTime.toISOString(),
-                                          },
-                                        });
-                                      }}
-                                      mode="single"
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-
-                              <div className="grid grid-cols-4">
-                                <Label>Technician</Label>
-                                <ComboboxInputCalendar
-                                  placeholder="technician"
-                                  defaultValue={event.technician_id}
-                                  list={technicians}
-                                  onSelect={(id) => {
-                                    if (!id) return;
-
-                                    mutate({
-                                      id: event.id,
-                                      updates: { technician_id: id },
-                                    });
-                                  }}
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-4">
-                                <Label>Services</Label>
-                                <ComboboxMultiple
-                                  defaultValues={
-                                    event.appointment_services?.map(
-                                      (s) => s.services.id
-                                    ) || []
-                                  }
-                                  onChange={(newServiceIds) => {
-                                    syncServices.mutate({
-                                      id: event.id,
-                                      serviceIds: newServiceIds,
-                                    });
-                                  }}
-                                />
-                              </div>
-                            </div>
-
-                            <div className="py-4 px-5 text-xs flex flex-col gap-4 font-medium">
-                              <div className="grid grid-cols-3">
-                                <Label>Services Total</Label>
-                                <p className="col-span-2">$90</p>
-                              </div>
-
-                              <div className="grid grid-cols-3">
-                                <Label>Tips</Label>
-                                <p className="col-span-2">$10</p>
-                              </div>
-
-                              <div className="grid grid-cols-3">
-                                <Label>Total</Label>
-                                <p className="col-span-2">$100</p>
-                              </div>
-
-                              <Button size={"sm"}>Finish Session</Button>
-                            </div>
+                            {/* NEW: Using the import */}
+                            <AppointmentForm
+                              event={event}
+                              customers={customers || []}
+                              technicians={technicians || []}
+                            />
                           </PopoverContent>
                         </Popover>
                       );

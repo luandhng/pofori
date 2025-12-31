@@ -39,14 +39,11 @@ export function ComboboxInputCalendar({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className="col-span-3">
-        <Button
-          size="sm"
-          variant="outline"
-          role="combobox"
+        <button
           aria-expanded={open}
-          className="w-fit text-xs border-none shadow-none justify-between"
+          className="w-fit flex items-center gap-1.5 hover:bg-neutral-100 cursor-pointer py-1 px-2 rounded-md text-xs border-none shadow-none justify-between"
         >
-          <UserCircleIcon className="text-blue-600" />
+          <UserCircleIcon size={15} weight="fill" />
           {/* FIX 1: Look inside 'list', not 'frameworks' */}
           {value
             ? list.find((item) => item.id === value)
@@ -56,7 +53,7 @@ export function ComboboxInputCalendar({
               : `Select ${placeholder}`
             : `Select ${placeholder}`}
           {/* <ChevronsUpDown className="opacity-50" /> */}
-        </Button>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0">
         <Command>
@@ -67,7 +64,13 @@ export function ComboboxInputCalendar({
               {list?.map((item: any) => (
                 <CommandItem
                   key={item.id}
-                  value={`${item.first_name} ${item.last_name}`}
+                  value={`${
+                    item.first_name.charAt(0).toUpperCase() +
+                    item.first_name.slice(1)
+                  } ${
+                    item.last_name.charAt(0).toUpperCase() +
+                    item.last_name.slice(1)
+                  }`}
                   onSelect={() => {
                     const newValue = value === item.id ? "" : item.id;
                     setValue(newValue);
@@ -75,7 +78,19 @@ export function ComboboxInputCalendar({
                     if (onSelect) onSelect(newValue);
                   }}
                 >
-                  {item.first_name} {item.last_name}
+                  <span className="flex flex-col">
+                    <span>
+                      {item.first_name.charAt(0).toUpperCase() +
+                        item.first_name.slice(1)}{" "}
+                      {item.last_name.charAt(0).toUpperCase() +
+                        item.last_name.slice(1)}
+                    </span>
+                    {placeholder === "customers" && (
+                      <span className="text-xs opacity-50">
+                        {item.phone_number}
+                      </span>
+                    )}
+                  </span>
                   <Check
                     className={cn(
                       "ml-auto",

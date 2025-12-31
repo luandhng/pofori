@@ -1,7 +1,8 @@
 "use client";
 
+import { CalendarEvent } from "@/app/types";
 import { MainCalendar } from "@/components/MainCalendar";
-import { WeekCalendar, CalendarEvent } from "@/components/WeekCalendar";
+import { WeekCalendar } from "@/components/WeekCalendar";
 import { useAppointments } from "@/hooks/use-appointments";
 import { addMinutes } from "date-fns";
 
@@ -29,6 +30,9 @@ const Schedule = () => {
         time: start,
         end: end,
         color: "blue",
+        tip: appt.tip,
+        payment: appt.payment,
+        status: appt.status,
       };
     }) || [];
 

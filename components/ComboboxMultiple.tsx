@@ -61,27 +61,17 @@ export default function ComboboxMultiple({
   };
 
   return (
-    <div className="w-full space-y-2 col-span-3">
+    <div className="space-y-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            id={id}
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="h-auto border-none shadow-none w-full justify-between"
-          >
+          <button id={id} aria-expanded={open} className="h-auto px-2">
             <div className="flex flex-wrap items-center gap-1 pr-2">
               {selectedValues.length > 0 ? (
                 selectedValues.map((val) => {
                   const service = services?.find((s) => s.id === val);
 
                   return service ? (
-                    <Badge
-                      key={val}
-                      variant="outline"
-                      className="rounded-sm font-normal"
-                    >
+                    <Badge key={val} variant="outline" className="rounded-sm">
                       {service.service}
                       <div
                         className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
@@ -101,11 +91,7 @@ export default function ComboboxMultiple({
                 </span>
               )}
             </div>
-            {/* <ChevronsUpDownIcon
-              className="text-muted-foreground/50 h-4 w-4 shrink-0"
-              aria-hidden="true"
-            /> */}
-          </Button>
+          </button>
         </PopoverTrigger>
         <PopoverContent className="w-75 p-0" align="start">
           <Command>
