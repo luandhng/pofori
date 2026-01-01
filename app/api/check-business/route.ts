@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
           : "[No shifts listed]";
 
         // Final Output: "- Sarah (Skills: Manicure) [Shifts: Mon 09:00-17:00, Tue...]"
-        return `- ${t.first_name} ${t.last_name} ${skillsStr} ${scheduleStr}`;
+        return `- ${t.first_name} ${t.last_name} (UUID: ${t.id}) ${skillsStr} ${scheduleStr}`;
       })
       .join("\n");
 
