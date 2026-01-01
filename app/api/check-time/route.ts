@@ -52,14 +52,12 @@ function isTimeWithinShift(
   shiftEnd: string,
   timeZone: string
 ): boolean {
-  // Convert time string (09:00) to minutes from midnight
   const parseToMins = (h: number, m: number) => h * 60 + m;
   const parseStr = (str: string) => {
     const [h, m] = str.split(":").map(Number);
     return parseToMins(h, m);
   };
 
-  // Get requested time in business timezone
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     hour: "numeric",
@@ -76,13 +74,12 @@ function isTimeWithinShift(
   const shiftStartMins = parseStr(shiftStart);
   const shiftEndMins = parseStr(shiftEnd);
 
-  // Strict check: Must start AFTER shift start AND finish BEFORE shift end
   return startMins >= shiftStartMins && endMins <= shiftEndMins;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("\n🔍 CHECK-CONFLICTS: Starting validation...");
+    console.log("\n⏰ CHECK-TIME: Starting validation...");
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -93,15 +90,14 @@ export async function POST(req: NextRequest) {
     const { appointment_time, services, technician_id } = body.args || body;
     const businessPhone = body.call?.to_number || "1111111111";
 
-    // 1. Basic Validation
-    if (!appointment_time || !technician_id) {
-      return NextResponse.json(
-        { available: false, error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (!appointment_time) {
+      return NextResponse.json({
+        available: false,
+        message: "No time provided.",
+      });
     }
 
-    // 2. Get Business Info
+    // 1. Get Business Info
     const { data: business } = await supabase
       .from("businesses")
       .select("id, name, time_zone")
@@ -115,16 +111,15 @@ export async function POST(req: NextRequest) {
       );
     const SALON_TIMEZONE = business.time_zone || "America/Los_Angeles";
 
-    // 3. Calculate Service Details (The "What")
+    // 2. Get Duration & IDs
+    // Ensure services is an array
+    const serviceList = Array.isArray(services)
+      ? services
+      : [services].filter(Boolean);
     const { duration: reqDurationMinutes, serviceIds: requiredServiceIds } =
-      await calculateServiceDetails(supabase, business.id, services || []);
+      await calculateServiceDetails(supabase, business.id, serviceList);
 
-    console.log(
-      `⏱️ Duration: ${reqDurationMinutes}m | Skills Needed: ${requiredServiceIds.length}`
-    );
-
-    // 4. Fetch Technicians (The Candidates)
-    // We fetch technicians, their schedule, and their skills all at once.
+    // 3. Fetch Technicians (Candidates)
     let techQuery = supabase
       .from("technicians")
       .select(
@@ -136,41 +131,34 @@ export async function POST(req: NextRequest) {
       )
       .eq("business_id", business.id);
 
-    // If specific tech requested, filter DB query immediately
-    if (technician_id.toUpperCase() !== "ANYONE") {
+    if (technician_id && technician_id.toUpperCase() !== "ANYONE") {
       techQuery = techQuery.eq("id", technician_id);
     }
 
-    const { data: allCandidates, error: techError } = await techQuery;
+    const { data: candidates } = await techQuery;
 
-    if (techError || !allCandidates || allCandidates.length === 0) {
+    if (!candidates || candidates.length === 0) {
       return NextResponse.json({
         available: false,
-        reason:
-          technician_id === "ANYONE"
-            ? "No technicians found."
-            : "Technician not found.",
+        message: "Technician not found.",
       });
     }
 
     // --- PIPELINE STEP 1: SKILL CHECK ---
-    const qualifiedTechs = allCandidates.filter((tech: any) => {
-      if (requiredServiceIds.length === 0) return true; // No specific skills needed
+    const qualifiedTechs = candidates.filter((tech: any) => {
+      if (requiredServiceIds.length === 0) return true; // Pass if no specific service requested
 
       const techServiceIds =
         tech.technician_services?.map((ts: any) => ts.service_id) || [];
-      const hasSkills = requiredServiceIds.every((reqId) =>
+      return requiredServiceIds.every((reqId) =>
         techServiceIds.includes(reqId)
       );
-
-      if (!hasSkills) console.log(`❌ SKILL FAIL: ${tech.first_name}`);
-      return hasSkills;
     });
 
     if (qualifiedTechs.length === 0) {
       return NextResponse.json({
         available: false,
-        reason: "No technicians are qualified for these services.",
+        message: "No technicians are qualified to perform this service.",
       });
     }
 
@@ -188,35 +176,27 @@ export async function POST(req: NextRequest) {
         (s: any) => s.day_of_week.toLowerCase() === appointmentDay
       );
 
-      if (!schedule) {
-        console.log(
-          `❌ SCHEDULE FAIL: ${tech.first_name} (Off on ${appointmentDay})`
-        );
-        return false;
-      }
+      if (!schedule) return false;
 
-      const isWorking = isTimeWithinShift(
+      return isTimeWithinShift(
         reqDate,
         reqDurationMinutes,
         schedule.start_time,
         schedule.end_time,
         SALON_TIMEZONE
       );
-
-      if (!isWorking)
-        console.log(`❌ SCHEDULE FAIL: ${tech.first_name} (Outside hours)`);
-      return isWorking;
     });
 
     if (workingTechs.length === 0) {
       return NextResponse.json({
         available: false,
-        reason: "No qualified technicians are working at that time.",
+        conflict: true,
+        message:
+          "There is a conflict. The requested time is outside of our working hours for these technicians.",
       });
     }
 
     // --- PIPELINE STEP 3: CONFLICT CHECK ---
-    // Only fetch appointments for the techs who survived steps 1 & 2
     const survivingIds = workingTechs.map((t: any) => t.id);
     const reqStart = reqDate.getTime();
     const reqEnd = reqStart + reqDurationMinutes * 60 * 1000;
@@ -231,10 +211,9 @@ export async function POST(req: NextRequest) {
       )
       .eq("business_id", business.id)
       .eq("status", "active")
-      .in("technician_id", survivingIds) // Optimization
+      .in("technician_id", survivingIds)
       .gte("time", new Date().toISOString());
 
-    // Identify who is booked
     const bookedTechIds = new Set();
 
     existingAppointments?.forEach((appt: any) => {
@@ -252,44 +231,29 @@ export async function POST(req: NextRequest) {
 
       const apptEnd = apptStart + apptDuration * 60 * 1000;
 
-      // Check overlap
       if (reqStart < apptEnd && reqEnd > apptStart) {
         bookedTechIds.add(appt.technician_id);
-        console.log(`❌ CONFLICT FAIL: Tech ${appt.technician_id} is booked.`);
       }
     });
 
-    // Final Filter
     const availableTechs = workingTechs.filter(
       (tech: any) => !bookedTechIds.has(tech.id)
     );
 
     // --- FINAL RESPONSE ---
     if (availableTechs.length > 0) {
-      if (technician_id.toUpperCase() !== "ANYONE") {
-        return NextResponse.json({
-          available: true,
-          technician_id: availableTechs[0].id,
-          message: "Time is available.",
-        });
-      } else {
-        return NextResponse.json({
-          available: true,
-          available_technicians: availableTechs.map((t: any) => ({
-            id: t.id,
-            name: `${t.first_name} ${t.last_name}`,
-          })),
-          message: "Time is available.",
-        });
-      }
+      return NextResponse.json({
+        available: true,
+        message: "Yes, that time is available.",
+      });
     } else {
       return NextResponse.json({
         available: false,
-        reason: "All qualified technicians are fully booked at this time.",
+        message: "No, that time is already fully booked.",
       });
     }
   } catch (error: any) {
-    console.error("❌ System Error:", error);
+    console.error("Check-Time Error:", error);
     return NextResponse.json(
       { available: false, error: error.message },
       { status: 500 }

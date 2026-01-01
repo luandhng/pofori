@@ -42,7 +42,16 @@ export const fetchTechnicians = async (businessId: string) => {
 
   const { data } = await supabase
     .from("technicians")
-    .select()
+    .select(
+      `*, technician_services (
+      services (
+        id,
+        service,
+        price, 
+        duration
+      )
+    )`
+    )
     .eq("business_id", businessId);
 
   return data;
