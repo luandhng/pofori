@@ -213,9 +213,6 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const body = await req.json();
-    const { appointment_time, technician_id, services } = body.args || body;
-
     const customer_phone = "999999";
     const business_phone = "1111111111";
 
@@ -226,86 +223,34 @@ export async function POST(req: NextRequest) {
       .eq("phone_number", business_phone)
       .single();
 
-    if (!business) return NextResponse.json({ error: "Business not found" });
-    const SALON_TIMEZONE = business.time_zone || "America/Los_Angeles";
-
     // 2. Get Customer
     const { data: customer } = await supabase
       .from("customers")
       .select("id")
       .eq("phone_number", customer_phone)
-      .eq("business_id", business.id)
+      .eq("business_id", business?.id)
       .single();
 
-    // 3. Prep Data
-    const bookingTimeUtc = localToUtc(appointment_time, SALON_TIMEZONE);
-    const { duration, serviceIds } = await calculateServiceDetails(
-      supabase,
-      business.id,
-      services || []
-    );
-
-    // 4. Assign Technician
-    let finalTechnicianId = technician_id;
-
-    if (!technician_id || technician_id.toUpperCase() === "ANYONE") {
-      const assignedId = await findAvailableTechnician(
-        supabase,
-        business.id,
-        bookingTimeUtc,
-        services || [],
-        serviceIds,
-        duration,
-        SALON_TIMEZONE // [!] Pass timezone
-      );
-
-      if (!assignedId) {
-        return NextResponse.json(
-          { success: false, error: "No available technicians found." },
-          { status: 400 }
-        );
-      }
-      finalTechnicianId = assignedId;
-    }
-
-    // 5. Insert Appointment
-    const { data: newAppt, error: bookingError } = await supabase
+    const { data: appointment } = await supabase
       .from("appointments")
-      .insert([
-        {
-          time: bookingTimeUtc,
-          customer_id: customer?.id,
-          business_id: business.id,
-          technician_id: finalTechnicianId,
-          status: "active",
-        },
-      ])
-      .select()
+      .select("*")
+      .eq("customer_id", customer?.id)
+      .eq("business_id", business?.id)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false })
+      .limit(1)
       .single();
 
-    if (bookingError) throw bookingError;
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: "active" })
+      .eq("id", appointment?.id);
 
-    // 6. Insert Services
-    if (serviceIds.length > 0) {
-      const serviceMap = serviceIds.map((sId) => ({
-        appointment_id: newAppt.id,
-        service_id: sId,
-      }));
-
-      const { error: serviceError } = await supabase
-        .from("appointment_services")
-        .insert(serviceMap);
-
-      if (serviceError) console.error("Error linking services:", serviceError);
-    }
-
-    // 7. Response
-    const readableTime = utcToLocal(bookingTimeUtc, SALON_TIMEZONE);
+    if (error) throw error;
 
     return NextResponse.json({
       success: true,
-      message: `Success. I have booked your appointment for ${readableTime}.`,
-      booked_time_utc: bookingTimeUtc,
+      message: `Success. I have booked your appointment.`,
     });
   } catch (error: any) {
     console.error("Booking Error:", error);
