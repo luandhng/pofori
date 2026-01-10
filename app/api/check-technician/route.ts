@@ -9,8 +9,8 @@ export async function POST(req: NextRequest) {
     );
 
     const body = await req.json();
-    const businessPhone = body.businessPhone || "1111111111";
-    const customerPhone = body.customerPhone || "999999";
+    const businessPhone = body.call?.to_number || "1111111111";
+    const customerPhone = body.call?.from_number || "999999";
 
     // 1. Context Check
     const { data: business } = await supabase

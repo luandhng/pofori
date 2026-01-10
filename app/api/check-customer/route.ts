@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
     const customerPhone = body.call?.from_number || "999999";
     const businessPhone = body.call?.to_number || "1111111111";
 
+    console.log("Customer Phone:", body.call?.from_number);
+    console.log("Business Phone:", body.call?.to_number);
+
     const { data: business } = await supabase
       .from("businesses")
       .select("id, name")
