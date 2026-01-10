@@ -1,7 +1,6 @@
 "use client";
 
 import { CalendarEvent } from "@/app/types";
-import { MainCalendar } from "@/components/MainCalendar";
 import { WeekCalendar } from "@/components/WeekCalendar";
 import { useAppointments } from "@/hooks/use-appointments";
 import { addMinutes } from "date-fns";
