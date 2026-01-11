@@ -43,7 +43,7 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
   console.log(getTechnicianServices());
 
   return (
-    <div className="flex border-b p-10 justify-between">
+    <div className="flex border-b p-10 justify-between bg-linear-to-t from-white to-neutral-100">
       <div className="flex flex-col gap-2">
         <div>
           <div className="flex gap-2 text-2xl font-semibold">
@@ -62,7 +62,7 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
         <div>{formatPhoneNumber(getTechnicianPhone())}</div>
       </div>
 
-      <div className="bg-black p-2 rounded-full h-40 w-40"></div>
+      <div className="bg-neutral-200 p-2 rounded-full h-40 w-40"></div>
 
       {/* <div className="flex gap-2">
         <Input
