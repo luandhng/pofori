@@ -1,6 +1,7 @@
 import { useTechnicians } from "@/hooks/use-technicians";
 import { Input } from "./ui/input";
 import ComboboxMultiple from "./ComboboxMultiple";
+import { formatPhoneNumber } from "@/actions/client/format-phone-number";
 
 interface TechnicianInfoProps {
   technicianId: string | undefined;
@@ -42,8 +43,28 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
   console.log(getTechnicianServices());
 
   return (
-    <div className="col-span-3 flex flex-col gap-2 border rounded-xl overflow-hidden p-4">
-      <div className="flex gap-2">
+    <div className="flex border-b p-10 justify-between">
+      <div className="flex flex-col gap-2">
+        <div>
+          <div className="flex gap-2 text-2xl font-semibold">
+            <div>
+              {getTechnicianFirstName().charAt(0).toUpperCase() +
+                getTechnicianFirstName().slice(1)}
+            </div>
+            <div>
+              {getTechnicianLastName().charAt(0).toUpperCase() +
+                getTechnicianLastName().slice(1)}
+            </div>
+          </div>
+
+          <div className="text-neutral-500">{getTechnicianEmail()}</div>
+        </div>
+        <div>{formatPhoneNumber(getTechnicianPhone())}</div>
+      </div>
+
+      <div className="bg-black p-2 rounded-full h-40 w-40"></div>
+
+      {/* <div className="flex gap-2">
         <Input
           defaultValue={getTechnicianFirstName()}
           placeholder="First Name"
@@ -64,8 +85,8 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
         defaultValue={getTechnicianPhone()}
         placeholder="Phone"
         type="tel"
-      />
-      <ComboboxMultiple defaultValues={getTechnicianServices()} />
+      /> */}
+      {/* <ComboboxMultiple defaultValues={getTechnicianServices()} /> */}
     </div>
   );
 };

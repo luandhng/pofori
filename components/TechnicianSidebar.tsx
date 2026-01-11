@@ -8,8 +8,7 @@ export function TechnicianSidebar() {
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <p className="px-2 text-xs text-neutral-500 font-medium">Technicians</p>
-      <div className="w-full flex flex-col gap-1">
+      <div className="w-full flex flex-col gap-2">
         {technicians?.map((technician) => (
           <TechnicianSidebarItem
             key={technician.id}

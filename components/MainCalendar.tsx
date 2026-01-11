@@ -67,7 +67,7 @@ export function MainCalendar({ events = [] }: CalendarProps) {
   const jumpToToday = () => setCurrentDate(new Date());
 
   return (
-    <div className="flex flex-col h-full w-full bg-white text-slate-800">
+    <div className="flex flex-col h-full w-full bg-white text-neutral-800">
       {/* HEADER */}
       <div className="flex items-center justify-between py-2 px-4">
         <div className="flex items-center gap-4">
@@ -80,19 +80,19 @@ export function MainCalendar({ events = [] }: CalendarProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={prevMonth}
-            className="p-2 hover:bg-slate-100 rounded-full"
+            className="p-2 hover:bg-neutral-100 rounded-full"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={jumpToToday}
-            className="text-sm font-medium px-3 py-1 border rounded hover:bg-slate-50"
+            className="text-sm font-medium px-3 py-1 border rounded hover:bg-neutral-50"
           >
             Today
           </button>
           <button
             onClick={nextMonth}
-            className="p-2 hover:bg-slate-100 rounded-full"
+            className="p-2 hover:bg-neutral-100 rounded-full"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -121,7 +121,7 @@ export function MainCalendar({ events = [] }: CalendarProps) {
             <div
               key={day.toString()}
               className={cn(
-                "p-1 border-b border-r hover:bg-slate-50 flex flex-col gap-0",
+                "p-1 border-b border-r hover:bg-neutral-50 flex flex-col gap-0",
                 !isCurrentMonth && "bg-white text-black/30" // Gray out padding days
               )}
             >

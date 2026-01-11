@@ -18,7 +18,7 @@ export function TechnicianSidebarItem({
     <Link
       href={"/dashboard/technicians/" + id}
       className={`
-      flex items-center hover:bg-slate-100 gap-2.5 cursor-pointer w-full py-1.5 px-2 text-left rounded-md`}
+      flex items-center hover:bg-neutral-100 gap-3 cursor-pointer w-full py-2 px-2.5 text-left rounded-md`}
     >
       <Checkbox
         checked={true}

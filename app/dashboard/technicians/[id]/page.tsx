@@ -47,17 +47,17 @@ const Technician = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="">
         <TechnicianInfo technicianId={id} />
 
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <InfoBox text="Total Appointments" number={getAppointmentCount()} />
           <InfoBox text="Completed" number={0} />
           <InfoBox money text="Total Revenue" number={0} />
-        </div>
+        </div> */}
       </div>
 
-      <div className="border rounded-xl overflow-hidden">
+      <div className="border rounded-xl overflow-hidden hidden">
         <Table>
           <TableHeader className="bg-[#fafafa]">
             <TableRow>

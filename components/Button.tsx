@@ -22,9 +22,9 @@ export const Button = ({ text, icon }: Props) => {
       href={targetPath}
       className={` ${
         isActive
-          ? "bg-slate-100"
-          : "duration-200 text-neutral-500 hover:text-black"
-      } flex items-center gap-2.5 cursor-pointer w-full py-1.5 px-2 text-left rounded-md`}
+          ? "bg-neutral-100"
+          : "duration-200 text-neutral-500 hover:text-black hover:bg-neutral-100"
+      } flex items-center gap-3 cursor-pointer w-full py-2 px-2.5 text-left rounded-sm`}
     >
       {icon} <p>{text}</p>
     </Link>

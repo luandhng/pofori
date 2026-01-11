@@ -5,7 +5,6 @@
 
 import { Sidebar } from "@/components/Sidebar";
 import Providers from "../providers";
-import { ContentTitle } from "@/components/ContentTitle";
 
 export default function DashboardLayout({
   children,
@@ -14,13 +13,16 @@ export default function DashboardLayout({
 }>) {
   return (
     <Providers>
-      <div className="flex h-screen">
-        <Sidebar />
+      <div className="h-screen overflow-hidden">
+        <div className="border-b px-4 py-3 font-semibold text-base">
+          Big Salon
+        </div>
+        <div className="flex h-full">
+          <Sidebar />
 
-        <div className="flex-1">
-          {/* <ContentTitle /> */}
-
-          <div className="h-full p-2">{children}</div>
+          <div className="flex-1">
+            <div className="h-full">{children}</div>
+          </div>
         </div>
       </div>
     </Providers>
