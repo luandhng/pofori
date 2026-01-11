@@ -216,7 +216,7 @@ export function WeekCalendar({
                   className="absolute w-full text-neutral-500 text-right pr-2 text-xs"
                   style={{
                     top: `${hour * CELL_HEIGHT}px`,
-                    transform: "tranneutralY(-50%)",
+                    transform: "translateY(-50%)",
                   }}
                 >
                   {hour !== 0 && format(new Date().setHours(hour, 0), "HH:mm")}
