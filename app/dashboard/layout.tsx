@@ -20,7 +20,7 @@ export default function DashboardLayout({
         <div className="flex-1">
           {/* <ContentTitle /> */}
 
-          <div className="h-full">{children}</div>
+          <div className="h-full p-2">{children}</div>
         </div>
       </div>
     </Providers>

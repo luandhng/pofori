@@ -15,17 +15,19 @@ import {
 import { useAppointments } from "@/hooks/use-appointments";
 import { useCustomers } from "@/hooks/use-customers";
 import { useParams } from "next/navigation";
+import { TechnicianInfo } from "@/components/TechnicianInfo";
 
 const Technician = () => {
   const { data: appointments } = useAppointments();
   const { data: customers } = useCustomers();
 
-  const param = useParams();
+  const params = useParams();
+  // Extract id and ensure it's a string (not an array)
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
   const getAppointmentCount = () => {
     if (!appointments) return 0;
-    return appointments.filter((appt) => appt.technician_id === param.id)
-      .length;
+    return appointments.filter((appt) => appt.technician_id === id).length;
   };
 
   const getCustomerName = (customerId: string) => {
@@ -44,11 +46,15 @@ const Technician = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="grid grid-cols-3 gap-8">
-        <InfoBox text="Total Appointments" number={getAppointmentCount()} />
-        <InfoBox text="Completed" number={0} />
-        <InfoBox money text="Total Revenue" number={0} />
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-4 gap-2">
+        <TechnicianInfo technicianId={id} />
+
+        <div className="flex flex-col gap-2">
+          <InfoBox text="Total Appointments" number={getAppointmentCount()} />
+          <InfoBox text="Completed" number={0} />
+          <InfoBox money text="Total Revenue" number={0} />
+        </div>
       </div>
 
       <div className="border rounded-xl overflow-hidden">
@@ -65,7 +71,7 @@ const Technician = () => {
           <TableBody>
             {appointments?.map(
               (item) =>
-                item.technician_id === param.id && (
+                item.technician_id === id && (
                   <TableRow key={item.id} className="">
                     <TableCell className="font-medium p-6">
                       {getCustomerName(item.customer_id)}

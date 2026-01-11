@@ -4,17 +4,19 @@ import { Checkbox } from "./ui/checkbox";
 interface TechnicianSidebarItemProps {
   first_name: string;
   last_name: string;
+  id: string;
   color: "red" | "blue" | "green" | "yellow" | "orange" | "purple" | "pink";
 }
 
 export function TechnicianSidebarItem({
   first_name,
   last_name,
+  id,
   color,
 }: TechnicianSidebarItemProps) {
   return (
     <Link
-      href={""}
+      href={"/dashboard/technicians/" + id}
       className={`
       flex items-center hover:bg-slate-100 gap-2.5 cursor-pointer w-full py-1.5 px-2 text-left rounded-md`}
     >

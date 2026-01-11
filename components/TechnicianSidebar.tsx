@@ -13,6 +13,7 @@ export function TechnicianSidebar() {
         {technicians?.map((technician) => (
           <TechnicianSidebarItem
             key={technician.id}
+            id={technician.id}
             first_name={technician.first_name}
             last_name={technician.last_name}
             color={technician.color}

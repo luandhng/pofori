@@ -42,6 +42,101 @@ function isTimeWithinShift(
   return startMins >= shiftStartMins && endMins <= shiftEndMins;
 }
 
+// --- HELPER 3: Find Alternative Technicians ---
+async function findAlternativeTechnicians(
+  supabase: any,
+  businessId: string,
+  appointmentDay: string,
+  appointmentTime: Date,
+  durationMinutes: number,
+  timeZone: string,
+  excludeTechnicianId?: string
+) {
+  // Fetch all technicians for this business
+  const { data: technicians } = await supabase
+    .from("technicians")
+    .select(
+      `
+      id,
+      first_name,
+      technician_schedules ( day_of_week, start_time, end_time )
+    `
+    )
+    .eq("business_id", businessId);
+
+  if (!technicians) return [];
+
+  const availableTechs = [];
+
+  for (const tech of technicians) {
+    // Skip the technician we're excluding
+    if (tech.id === excludeTechnicianId) continue;
+
+    const schedules = tech.technician_schedules || [];
+    const schedule = schedules.find(
+      (s: any) => s.day_of_week.toLowerCase() === appointmentDay
+    );
+
+    // Skip if technician doesn't work on this day
+    if (!schedule) continue;
+
+    // Check if time is within their shift
+    if (
+      !isTimeWithinShift(
+        appointmentTime,
+        durationMinutes,
+        schedule.start_time,
+        schedule.end_time,
+        timeZone
+      )
+    ) {
+      continue;
+    }
+
+    // Check for conflicts with existing bookings
+    const reqStart = appointmentTime.getTime();
+    const reqEnd = reqStart + durationMinutes * 60 * 1000;
+
+    const { data: conflicts } = await supabase
+      .from("appointments")
+      .select(`time, appointment_services ( services ( duration ) )`)
+      .eq("business_id", businessId)
+      .eq("status", "active")
+      .eq("technician_id", tech.id)
+      .gte("time", new Date().toISOString());
+
+    let hasConflict = false;
+    conflicts?.forEach((c: any) => {
+      const cStart = new Date(c.time).getTime();
+      let cDur = 0;
+      (c.appointment_services as any[])?.forEach((item) => {
+        const s = item.services;
+        const d = Array.isArray(s)
+          ? (s[0] as any)?.duration
+          : (s as any)?.duration;
+        cDur += d || 60;
+      });
+      if (cDur === 0) cDur = 60;
+
+      const cEnd = cStart + cDur * 60 * 1000;
+      if (reqStart < cEnd && reqEnd > cStart) hasConflict = true;
+    });
+
+    if (!hasConflict) {
+      availableTechs.push({
+        id: tech.id,
+        first_name: tech.first_name,
+        schedule: `${schedule.start_time.slice(
+          0,
+          5
+        )} - ${schedule.end_time.slice(0, 5)}`,
+      });
+    }
+  }
+
+  return availableTechs;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = createClient(
@@ -168,9 +263,40 @@ export async function POST(req: NextRequest) {
       );
 
       if (!schedule) {
+        // Get the days this technician actually works
+        const workingDays = schedules.map((s: any) => s.day_of_week).join(", ");
+
+        // Try to find alternative technicians who work on this day
+        const alternativeTechs = await findAlternativeTechnicians(
+          supabase,
+          business.id,
+          appointmentDay,
+          checkDateObj,
+          duration,
+          SALON_TIMEZONE,
+          appt.technician_id
+        );
+
+        let message = `I'm sorry, but ${tech.first_name} does not work on ${appointmentDay}s. ${tech.first_name} works on: ${workingDays}.`;
+
+        if (alternativeTechs.length > 0) {
+          const techNames = alternativeTechs
+            .map((t) => t.first_name)
+            .join(", ");
+          message += ` However, the following technician${
+            alternativeTechs.length > 1 ? "s are" : " is"
+          } available on ${appointmentDay}s: ${techNames}. Would you like to switch to one of them?`;
+        }
+
         return NextResponse.json({
           available: false,
-          message: `I'm sorry, but ${tech.first_name} does not work on ${appointmentDay}s.`,
+          message,
+          technician_schedule: workingDays,
+          alternative_technicians: alternativeTechs.map((t) => ({
+            id: t.id,
+            name: t.first_name,
+            working_hours: t.schedule,
+          })),
         });
       }
 
@@ -184,14 +310,47 @@ export async function POST(req: NextRequest) {
           SALON_TIMEZONE
         )
       ) {
+        // Try to find alternative technicians who work at this time
+        const alternativeTechs = await findAlternativeTechnicians(
+          supabase,
+          business.id,
+          appointmentDay,
+          checkDateObj,
+          duration,
+          SALON_TIMEZONE,
+          appt.technician_id
+        );
+
+        let message = `${
+          tech.first_name
+        } works on ${appointmentDay}s, but that time is outside their shift. ${
+          tech.first_name
+        }'s working hours on ${appointmentDay}s are ${schedule.start_time.slice(
+          0,
+          5
+        )} - ${schedule.end_time.slice(0, 5)}.`;
+
+        if (alternativeTechs.length > 0) {
+          const techNames = alternativeTechs
+            .map((t) => t.first_name)
+            .join(", ");
+          message += ` However, the following technician${
+            alternativeTechs.length > 1 ? "s are" : " is"
+          } available at that time: ${techNames}. Would you like to switch to one of them?`;
+        }
+
         return NextResponse.json({
           available: false,
-          message: `${
-            tech.first_name
-          } works on that day, but that time is outside their shift (${schedule.start_time.slice(
+          message,
+          technician_schedule: `${schedule.start_time.slice(
             0,
             5
-          )} - ${schedule.end_time.slice(0, 5)}).`,
+          )} - ${schedule.end_time.slice(0, 5)}`,
+          alternative_technicians: alternativeTechs.map((t) => ({
+            id: t.id,
+            name: t.first_name,
+            working_hours: t.schedule,
+          })),
         });
       }
 
@@ -228,9 +387,38 @@ export async function POST(req: NextRequest) {
       });
 
       if (isConflict) {
+        // Try to find alternative technicians who are available
+        const alternativeTechs = await findAlternativeTechnicians(
+          supabase,
+          business.id,
+          appointmentDay,
+          checkDateObj,
+          duration,
+          SALON_TIMEZONE,
+          appt.technician_id
+        );
+
+        let message = `I'm sorry, but ${tech.first_name} is already fully booked at that time.`;
+
+        if (alternativeTechs.length > 0) {
+          const techNames = alternativeTechs
+            .map((t) => t.first_name)
+            .join(", ");
+          message += ` However, the following technician${
+            alternativeTechs.length > 1 ? "s are" : " is"
+          } available: ${techNames}. Would you like to book with one of them instead?`;
+        } else {
+          message += ` Unfortunately, no other technicians are available at that time. Would you like to try a different time?`;
+        }
+
         return NextResponse.json({
           available: false,
-          message: `I'm sorry, but ${tech.first_name} is already fully booked at that time.`,
+          message,
+          alternative_technicians: alternativeTechs.map((t) => ({
+            id: t.id,
+            name: t.first_name,
+            working_hours: t.schedule,
+          })),
         });
       }
     }
