@@ -7,10 +7,10 @@ export default function TechniciansLayout({
 }) {
   return (
     <div className="grid grid-cols-14 h-full">
-      <div className="col-span-3 h-full">
+      <div className="col-span-2 h-full">
         <TechnicianSidebar />
       </div>
-      <div className="col-span-11 h-full">{children}</div>
+      <div className="col-span-12 h-full">{children}</div>
     </div>
   );
 }

@@ -43,7 +43,7 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
   console.log(getTechnicianServices());
 
   return (
-    <div className="flex justify-between items-start border-b borderColor p-14 bg-linear-to-t from-[#161616] to-black">
+    <div className="flex justify-between items-start border-b-[0.5px] borderColor p-14 bg-linear-to-t from-[#161616] to-black">
       <div className="flex flex-col justify-between gap-10">
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">

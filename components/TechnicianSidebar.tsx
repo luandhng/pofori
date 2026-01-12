@@ -14,8 +14,8 @@ export function TechnicianSidebar() {
   const params = useParams();
 
   return (
-    <div className="flex flex-col border-r borderColor h-full">
-      <div className="flex items-center gap-2 justify-between border-b p-2 borderColor">
+    <div className="flex flex-col border-r-[0.5px] borderColor h-full">
+      <div className="flex items-center gap-2 justify-between border-b-[0.5px] p-2 borderColor">
         <Input
           placeholder="Search a technician"
           className="borderColor"
