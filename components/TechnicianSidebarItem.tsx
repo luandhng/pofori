@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Checkbox } from "./ui/checkbox";
+import { useParams } from "next/navigation";
 
 interface TechnicianSidebarItemProps {
   first_name: string;
@@ -14,10 +15,12 @@ export function TechnicianSidebarItem({
   id,
   color,
 }: TechnicianSidebarItemProps) {
+  const params = useParams();
+
   return (
     <Link
       href={"/dashboard/technicians/" + id}
-      className={`
+      className={` ${id === params.id ? "bg-neutral-800" : ""}
       flex items-center hover:bg-neutral-800 gap-3 cursor-pointer w-full py-2 px-2.5 text-left rounded-md`}
     >
       <Checkbox

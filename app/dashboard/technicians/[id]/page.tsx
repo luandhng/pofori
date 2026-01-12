@@ -58,7 +58,7 @@ const Technician = () => {
         </div>
       </div>
 
-      <div className="border rounded-xl overflow-hidden hidden">
+      {/* <div className="border rounded-xl overflow-hidden hidden">
         <Table>
           <TableHeader className="bg-[#fafafa]">
             <TableRow>
@@ -78,7 +78,7 @@ const Technician = () => {
                       {getCustomerName(item.customer_id)}
                     </TableCell>
                     <TableCell className="flex gap-2 py-6">
-                      {item.services.map((item: string, index: number) => (
+                      {item.services?.map((item: string, index: number) => (
                         <div
                           className="border lowercase border-neutral-200 rounded-full py-1 px-2 w-fit"
                           key={index}
@@ -103,7 +103,7 @@ const Technician = () => {
             )}
           </TableBody>
         </Table>
-      </div>
+      </div> */}
     </div>
   );
 };

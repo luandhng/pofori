@@ -271,14 +271,14 @@ export function WeekCalendar({
                   <div
                     key={tech.id}
                     className={`flex-1 relative min-w-37.5 transition-colors duration-200 ${
-                      isHoverTarget ? "bg-blue-50/50" : ""
+                      isHoverTarget ? "bg-neutral-800/50" : ""
                     }`}
                     onDragOver={(e) => handleDragOver(e, tech.id)}
                     onDrop={(e) => handleDrop(e, tech.id)}
                   >
                     {isHoverTarget && dropIndicator && (
                       <div
-                        className="absolute inset-x-1 rounded border border-dashed border-blue-400 bg-blue-100/40 z-10 pointer-events-none flex items-center justify-center text-blue-600 text-xs font-bold"
+                        className="absolute inset-x-1 rounded border border-dashed border-red-500 bg-neutral-200 z-10 pointer-events-none flex items-center justify-center text-blue-600 text-xs font-bold"
                         style={{
                           top: `${getVerticalPosition(dropIndicator.time)}px`,
                           height: `${
@@ -310,14 +310,14 @@ export function WeekCalendar({
                                 )
                               }
                               onDragEnd={handleDragEnd}
-                              className={`absolute inset-x-1 flex flex-col rounded border-l-4 border-blue-500 bg-[#EBF5FF] p-1.5 text-xs cursor-grab active:cursor-grabbing overflow-hidden z-20 transition-all hover:brightness-95 ${
+                              className={`absolute inset-x-1 flex flex-col rounded border-l-4 border-neutral-500 bg-neutral-800 p-1.5 text-xs cursor-grab active:cursor-grabbing overflow-hidden z-20 transition-all hover:brightness-95 ${
                                 isDraggingThis
                                   ? "opacity-40 grayscale"
                                   : "opacity-100"
                               }`}
                               style={{ top: `${top}px`, height: `${height}px` }}
                             >
-                              <div className="font-bold text-blue-900 truncate">
+                              <div className="font-bold text-white truncate">
                                 {
                                   customers?.find(
                                     (c) => c.id === event.customer_id
@@ -329,11 +329,11 @@ export function WeekCalendar({
                                   )?.last_name
                                 }
                               </div>
-                              <div className="text-blue-700/80 mt-0.5 truncate text-[10px] font-medium">
+                              <div className="text-white/80 mt-0.5 truncate text-[10px] font-medium">
                                 {format(event.time, "HH:mm")} -{" "}
                                 {format(event.end, "HH:mm")}
                               </div>
-                              <div className="mt-0.5 truncate text-black/60">
+                              <div className="mt-0.5 truncate text-white/60">
                                 {event.appointment_services?.map((s: any) => (
                                   <div key={s.services?.id}>
                                     {s.services?.service}
