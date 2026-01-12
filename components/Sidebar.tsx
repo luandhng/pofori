@@ -11,7 +11,7 @@ import { TechnicianSidebar } from "./TechnicianSidebar";
 
 export function Sidebar() {
   return (
-    <div className="w-56 flex flex-col justify-between p-2 border-r border-neutral-200">
+    <div className="w-56 flex flex-col justify-between p-2 border-r borderColor">
       <div className="flex flex-col text-sm gap-2">
         <div className="flex flex-col gap-2 w-full">
           <div className="w-full flex flex-col gap-2">
@@ -24,7 +24,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        <div className="border-b" />
+        <div className="border-b borderColor" />
 
         <TechnicianSidebar />
       </div>

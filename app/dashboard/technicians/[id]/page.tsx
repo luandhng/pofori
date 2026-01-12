@@ -50,11 +50,12 @@ const Technician = () => {
       <div className="">
         <TechnicianInfo technicianId={id} />
 
-        {/* <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-4 gap-4 p-4">
           <InfoBox text="Total Appointments" number={getAppointmentCount()} />
           <InfoBox text="Completed" number={0} />
           <InfoBox money text="Total Revenue" number={0} />
-        </div> */}
+          <InfoBox money text="Total Revenue" number={0} />
+        </div>
       </div>
 
       <div className="border rounded-xl overflow-hidden hidden">

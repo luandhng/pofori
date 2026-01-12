@@ -30,7 +30,7 @@ const Technicians = () => {
             className="border-b flex items-center justify-between hover:bg-neutral-100 cursor-pointer border-neutral-200 last:border-none px-6 py-4"
           >
             <div className="flex items-center gap-4">
-              <div className="bg-neutral-200 h-10 w-10 rounded-lg"></div>
+              <div className="h-10 w-10 rounded-lg"></div>
               <div className="">
                 {item.first_name.toUpperCase().slice(0, 1) +
                   item.first_name.slice(1)}{" "}

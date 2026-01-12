@@ -14,7 +14,7 @@ export default function DashboardLayout({
   return (
     <Providers>
       <div className="h-screen overflow-hidden">
-        <div className="border-b px-4 py-3 font-semibold text-base">
+        <div className="border-b borderColor px-4 py-3 font-semibold text-base">
           Big Salon
         </div>
         <div className="flex h-full">

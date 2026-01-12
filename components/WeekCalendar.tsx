@@ -162,19 +162,24 @@ export function WeekCalendar({
   return (
     <div className="flex flex-col h-full overflow-hidden select-none">
       {/* HEADER */}
-      <div className="flex items-center justify-between p-4  bg-white z-30 relative">
+      <div className="flex items-center justify-between p-4 z-30 relative">
         <h2 className="text-xl font-bold tracking-tight">
           {format(currentDate, "d MMMM yyyy")}
         </h2>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={jumpToToday}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-transparent borderColor"
+            onClick={jumpToToday}
+          >
             Today
           </Button>
-          <div className="flex items-center border rounded-full">
-            <button onClick={prevDay} className="p-1.5 border-r">
+          <div className="flex items-center border borderColor rounded-full">
+            <button onClick={prevDay} className="p-1.5 borderColor border-r">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button onClick={nextDay} className="p-1.5">
+            <button onClick={nextDay} className="p-1.5 borderColor">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
@@ -182,8 +187,8 @@ export function WeekCalendar({
       </div>
 
       {/* TECH HEADER */}
-      <div className="flex border-b border-neutral-200 sticky top-0 z-20 bg-white">
-        <div className="w-20 min-w-20 border-neutral-200" />
+      <div className="flex border-b borderColor sticky top-0 z-20">
+        <div className="w-20 min-w-20 borderColor" />
         <div className="flex flex-1">
           {isLoadingTechs && (
             <div className="flex-1 p-2 text-sm text-gray-400 italic">
@@ -202,10 +207,10 @@ export function WeekCalendar({
       </div>
 
       {/* GRID */}
-      <div className="flex-1 overflow-y-auto relative custom-scrollbar bg-white">
+      <div className="flex-1 overflow-y-auto relative custom-scrollbar">
         <div className="flex min-w-full relative">
           {/* TIME AXIS */}
-          <div className="w-20 min-w-20 bg-white border-r border-neutral-200 sticky left-0 z-30">
+          <div className="w-20 min-w-20 border-r borderColor sticky left-0 z-30">
             <div
               className="relative"
               style={{ height: `${GRID_TOTAL_HEIGHT}px` }}
@@ -231,7 +236,7 @@ export function WeekCalendar({
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="border-b border-neutral-200 w-full"
+                  className="border-b borderColor w-full"
                   style={{ height: `${CELL_HEIGHT}px` }}
                 />
               ))}
@@ -251,7 +256,7 @@ export function WeekCalendar({
             )}
 
             <div
-              className="flex flex-1 divide-x divide-neutral-200 relative z-10"
+              className="flex flex-1 divide-x divide-[#3e3e3e] relative z-10"
               style={{ height: `${GRID_TOTAL_HEIGHT}px` }}
             >
               {technicians?.map((tech) => {

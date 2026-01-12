@@ -43,26 +43,31 @@ export const TechnicianInfo = ({ technicianId }: TechnicianInfoProps) => {
   console.log(getTechnicianServices());
 
   return (
-    <div className="flex border-b p-10 justify-between bg-linear-to-t from-white to-neutral-100">
-      <div className="flex flex-col gap-2">
-        <div>
-          <div className="flex gap-2 text-2xl font-semibold">
-            <div>
-              {getTechnicianFirstName().charAt(0).toUpperCase() +
-                getTechnicianFirstName().slice(1)}
+    <div className="flex border-b borderColor p-14 justify-between bg-linear-to-t from-[#161616] to-black">
+      <div className="flex flex-col justify-between">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="border mb-2 text-xs border-green-400 text-green-400 py-1 px-2  rounded-sm w-fit">
+              Active
             </div>
-            <div>
-              {getTechnicianLastName().charAt(0).toUpperCase() +
-                getTechnicianLastName().slice(1)}
+            <div className="flex gap-2 text-3xl font-semibold">
+              <div>
+                {getTechnicianFirstName().charAt(0).toUpperCase() +
+                  getTechnicianFirstName().slice(1)}
+              </div>
+              <div>
+                {getTechnicianLastName().charAt(0).toUpperCase() +
+                  getTechnicianLastName().slice(1)}
+              </div>
             </div>
-          </div>
 
-          <div className="text-neutral-500">{getTechnicianEmail()}</div>
+            <div className="text-neutral-500">{getTechnicianEmail()}</div>
+          </div>
+          <div>{formatPhoneNumber(getTechnicianPhone())}</div>
         </div>
-        <div>{formatPhoneNumber(getTechnicianPhone())}</div>
       </div>
 
-      <div className="bg-neutral-200 p-2 rounded-full h-40 w-40"></div>
+      <div className="bg-neutral-800 p-2 rounded-full h-40 w-40"></div>
 
       {/* <div className="flex gap-2">
         <Input

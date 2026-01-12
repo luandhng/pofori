@@ -6,7 +6,7 @@ interface Props {
 
 export const InfoBox = ({ text, number, money }: Props) => {
   return (
-    <div className="bg-[#fafafa] p-6 border border-neutral-200 rounded-xl flex flex-col gap-4">
+    <div className="bg-neutral-800 p-4 rounded-2xl flex flex-col gap-6">
       <h2 className="">{text}</h2>
       <p className="text-2xl">
         {money && "$"} {number}
