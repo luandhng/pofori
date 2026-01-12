@@ -11,7 +11,7 @@ import {
 
 export function Sidebar() {
   return (
-    <div className="w-48 flex flex-col justify-between p-2 border-r-[0.5px] borderColor">
+    <div className="w-48 flex flex-col justify-between p-2 border-r borderColor">
       <div className="flex flex-col text-sm gap-2">
         <div className="flex flex-col gap-2 w-full">
           <div className="w-full flex flex-col gap-2">
