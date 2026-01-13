@@ -19,10 +19,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTechnicians } from "@/hooks/use-technicians";
 import { useCustomers } from "@/hooks/use-customers";
 import { useUpdateAppointment } from "@/hooks/use-update-appointment";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+// 1. Remove Popover, Add Sheet
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Button } from "./ui/button";
 
-// --- IMPORT THE NEW COMPONENT ---
 import AppointmentForm from "./AppointmentForm";
 import { CalendarEvent } from "@/app/types";
 
@@ -43,6 +49,12 @@ export function WeekCalendar({
 }: DayCalendarProps) {
   const [currentDate, setCurrentDate] = useState(initialDate);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // 2. Add State for the Active Sheet
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // --- DRAG STATE ---
   const dragRef = useRef<{
@@ -156,6 +168,12 @@ export function WeekCalendar({
     setDropIndicator(null);
   };
 
+  // 3. Handler for clicking an event
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsSheetOpen(true);
+  };
+
   const currentTimeTop = getVerticalPosition(currentTime);
   const showCurrentTimeLine = isToday(currentDate);
 
@@ -196,7 +214,7 @@ export function WeekCalendar({
             </div>
           )}
           {technicians?.map((tech) => (
-            <div key={tech.id} className="flex-1 pb-3  text-center">
+            <div key={tech.id} className="flex-1 pb-3 text-center">
               {tech.first_name.charAt(0).toUpperCase() +
                 tech.first_name.slice(1).toLowerCase()}{" "}
               {tech.last_name.charAt(0).toUpperCase() +
@@ -297,64 +315,46 @@ export function WeekCalendar({
                       const isDraggingThis = dragRef.current?.id === event.id;
 
                       return (
-                        <Popover key={event.id}>
-                          <PopoverTrigger asChild>
-                            <div
-                              draggable="true"
-                              onDragStart={(e) =>
-                                handleDragStart(
-                                  e,
-                                  event.id,
-                                  event.time,
-                                  event.end
-                                )
-                              }
-                              onDragEnd={handleDragEnd}
-                              className={`absolute inset-x-1 flex flex-col rounded border-l-4 border-neutral-500 bg-neutral-800 p-1.5 text-xs cursor-grab active:cursor-grabbing overflow-hidden z-20 transition-all hover:brightness-95 ${
-                                isDraggingThis
-                                  ? "opacity-40 grayscale"
-                                  : "opacity-100"
-                              }`}
-                              style={{ top: `${top}px`, height: `${height}px` }}
-                            >
-                              <div className="font-bold text-white truncate">
-                                {
-                                  customers?.find(
-                                    (c) => c.id === event.customer_id
-                                  )?.first_name
-                                }{" "}
-                                {
-                                  customers?.find(
-                                    (c) => c.id === event.customer_id
-                                  )?.last_name
-                                }
+                        <div
+                          key={event.id}
+                          draggable="true"
+                          onDragStart={(e) =>
+                            handleDragStart(e, event.id, event.time, event.end)
+                          }
+                          onDragEnd={handleDragEnd}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent bubbling
+                            handleEventClick(event); // Trigger Sheet
+                          }}
+                          className={`absolute inset-x-1 flex flex-col rounded border-l-4 border-neutral-500 bg-neutral-800 p-1.5 text-xs cursor-grab active:cursor-grabbing overflow-hidden z-20 transition-all hover:brightness-95 ${
+                            isDraggingThis
+                              ? "opacity-40 grayscale"
+                              : "opacity-100"
+                          }`}
+                          style={{ top: `${top}px`, height: `${height}px` }}
+                        >
+                          <div className="font-bold text-white truncate">
+                            {
+                              customers?.find((c) => c.id === event.customer_id)
+                                ?.first_name
+                            }{" "}
+                            {
+                              customers?.find((c) => c.id === event.customer_id)
+                                ?.last_name
+                            }
+                          </div>
+                          <div className="text-white/80 mt-0.5 truncate text-[10px] font-medium">
+                            {format(event.time, "HH:mm")} -{" "}
+                            {format(event.end, "HH:mm")}
+                          </div>
+                          <div className="mt-0.5 truncate text-white/60">
+                            {event.appointment_services?.map((s: any) => (
+                              <div key={s.services?.id}>
+                                {s.services?.service}
                               </div>
-                              <div className="text-white/80 mt-0.5 truncate text-[10px] font-medium">
-                                {format(event.time, "HH:mm")} -{" "}
-                                {format(event.end, "HH:mm")}
-                              </div>
-                              <div className="mt-0.5 truncate text-white/60">
-                                {event.appointment_services?.map((s: any) => (
-                                  <div key={s.services?.id}>
-                                    {s.services?.service}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </PopoverTrigger>
-                          <PopoverContent
-                            side="right"
-                            className="w-90 flex p-0 flex-col gap-2 shadow-none"
-                            align="start"
-                          >
-                            {/* NEW: Using the import */}
-                            <AppointmentForm
-                              event={event}
-                              customers={customers || []}
-                              technicians={technicians || []}
-                            />
-                          </PopoverContent>
-                        </Popover>
+                            ))}
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -364,6 +364,27 @@ export function WeekCalendar({
           </div>
         </div>
       </div>
+
+      {/* 4. Single Sheet Component Controlled by State */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit Appointment</SheetTitle>
+            <SheetDescription>
+              Make changes to the appointment here.
+            </SheetDescription>
+          </SheetHeader>
+          {selectedEvent && (
+            <div className="mt-4">
+              <AppointmentForm
+                event={selectedEvent}
+                customers={customers || []}
+                technicians={technicians || []}
+              />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

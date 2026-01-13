@@ -21,6 +21,8 @@ import {
 import { useTechnicians } from "@/hooks/use-technicians";
 import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Technicians = () => {
   const params = useParams();
@@ -101,7 +103,7 @@ const Technicians = () => {
 
       {/* 5. Render the Sheet outside the table, controlled by state */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="bg-neutral-800 w-200 borderColor">
+        <SheetContent className="bg-neutral-800 borderColor">
           <SheetHeader className="hidden">
             <SheetTitle className="text-white hidden"></SheetTitle>
             <SheetDescription className="text-white hidden"></SheetDescription>
@@ -141,6 +143,21 @@ const Technicians = () => {
                   value={activeTech.phone_number}
                 />
               </div>
+
+              <Separator className="" />
+
+              <Tabs defaultValue="account" className="w-[400px]">
+                <TabsList>
+                  <TabsTrigger value="account">Upcoming</TabsTrigger>
+                  <TabsTrigger value="password">Completed</TabsTrigger>
+                </TabsList>
+                <TabsContent value="account">
+                  Make changes to your account here.
+                </TabsContent>
+                <TabsContent value="password">
+                  Change your password here.
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </SheetContent>
