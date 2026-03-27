@@ -3,5 +3,6 @@ export default function Home() {
       <p>Hello fmy King</p>
     <p>Lovely things start here</p>
       <p>My kingggg</p>
+      <p>yo aare king</p>
   </div>;
 }
