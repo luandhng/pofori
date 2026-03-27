@@ -3,5 +3,8 @@ export default function Home() {
 
 
     love u so much
+
+
+    <p>We can be better</p>
   </div>;
 }
