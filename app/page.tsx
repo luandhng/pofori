@@ -1,3 +1,7 @@
 export default function Home() {
-  return <div></div>;
+  return <div>
+
+
+    love u so much
+  </div>;
 }
