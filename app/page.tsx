@@ -5,7 +5,7 @@ export default function Home() {
     love u so much
 
 
-    <p>We can be better</p>
+    <p>my kings yo: Luan</p>
 
     <p>haha you are right</p>
     <p className={'text-blue-700'}>I wonder you  yo are cool</p>
