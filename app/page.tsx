@@ -8,6 +8,6 @@ export default function Home() {
     <p>We can be better</p>
 
     <p>haha you are right</p>
-    <p className={'text-blue-700'}>I wonder you are cool</p>
+    <p className={'text-blue-700'}>I wonder you  yo are cool</p>
   </div>;
 }
